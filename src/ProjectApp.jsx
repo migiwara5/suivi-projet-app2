@@ -20,19 +20,21 @@ const supabase = createClient(
 );
 
 export default function ProjectApp() {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(undefined);
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
 
   useEffect(() => {
     const getCurrentSession = async () => {
       const { data } = await supabase.auth.getSession();
+      console.log("Session récupérée:", data?.session);
       setSession(data?.session);
     };
 
     getCurrentSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Changement d'état de session:", session);
       setSession(session);
     });
 
@@ -62,7 +64,9 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
-  console.log("Session:", session);
+  if (session === undefined) {
+    return <div className="text-center p-10">Chargement...</div>;
+  }
 
   if (!session) {
     return <AuthForm />;
