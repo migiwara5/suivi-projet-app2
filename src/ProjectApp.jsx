@@ -1,12 +1,8 @@
-// App de suivi de projet (clé en main avec Supabase + Auth + Table + Kanban + Tailwind CSS)
+// App de suivi de projet (clé en main avec Supabase + Auth + Table + Kanban + Bootstrap CSS)
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Card, CardContent } from "./components/ui/card";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
-import { Textarea } from "./components/ui/textarea";
-import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -27,14 +23,12 @@ export default function ProjectApp() {
   useEffect(() => {
     const getCurrentSession = async () => {
       const { data } = await supabase.auth.getSession();
-      console.log("Session récupérée:", data?.session);
       setSession(data?.session);
     };
 
     getCurrentSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Changement d'état de session:", session);
       setSession(session);
     });
 
@@ -64,42 +58,39 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
-  if (session === undefined) {
-    return <div className="text-center p-10">Chargement...</div>;
-  }
-
-  if (!session) {
-    return <AuthForm />;
-  }
+  if (session === undefined) return <div className="text-center p-4">Chargement...</div>;
+  if (!session) return <AuthForm />;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Suivi de projet</h1>
+    <div className="container mt-4">
+      <h1 className="mb-4">Suivi de projet</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Input placeholder="Titre de la tâche" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} className="mb-2" />
-          <Textarea placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} className="mb-2" />
-          <Input type="date" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} className="mb-2" />
-          <Button onClick={addTask}>Ajouter</Button>
+      <div className="row">
+        <div className="col-md-4 mb-4">
+          <input className="form-control mb-2" placeholder="Titre" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
+          <textarea className="form-control mb-2" placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
+          <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
+          <button className="btn btn-primary w-100" onClick={addTask}>Ajouter</button>
         </div>
 
-        {"À faire,En cours,Terminé".split(",").map(status => (
-          <Card key={status}>
-            <CardContent>
-              <h2 className="font-semibold mb-2">{status}</h2>
-              {tasks.filter(t => t.status === status).map(task => (
-                <div key={task.id} className="p-2 border mb-2 rounded">
-                  <div className="font-semibold">{task.title}</div>
-                  <div className="text-sm text-gray-500">{task.description}</div>
-                  <div className="text-xs text-gray-400">Pour le {task.due_date}</div>
-                  {status !== "Terminé" && (
-                    <Button variant="outline" size="sm" className="mt-1" onClick={() => updateStatus(task.id, status === "À faire" ? "En cours" : "Terminé")}>Passer à {status === "À faire" ? "En cours" : "Terminé"}</Button>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+        {["À faire", "En cours", "Terminé"].map(status => (
+          <div className="col-md-4 mb-4" key={status}>
+            <div className="card">
+              <div className="card-header fw-bold">{status}</div>
+              <div className="card-body">
+                {tasks.filter(t => t.status === status).map(task => (
+                  <div key={task.id} className="border rounded p-2 mb-2">
+                    <strong>{task.title}</strong>
+                    <p className="mb-1 small text-muted">{task.description}</p>
+                    <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
+                    {status !== "Terminé" && (
+                      <button className="btn btn-sm btn-outline-success" onClick={() => updateStatus(task.id, status === "À faire" ? "En cours" : "Terminé")}>Passer à {status === "À faire" ? "En cours" : "Terminé"}</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -115,66 +106,52 @@ function AuthForm() {
   const [message, setMessage] = useState('');
 
   const passwordStrength = password.length >= 10 ? 'Fort' : password.length >= 6 ? 'Moyen' : 'Faible';
-  const passwordColor = password.length >= 10 ? 'text-green-600' : password.length >= 6 ? 'text-yellow-600' : 'text-red-600';
+  const passwordColor = password.length >= 10 ? 'text-success' : password.length >= 6 ? 'text-warning' : 'text-danger';
 
   const handleAuth = async () => {
     setError('');
     setMessage('');
 
-    if (!email || !password) {
-      setError('Veuillez remplir tous les champs.');
-      return;
-    }
-
-    if (!isLogin && password.length < 10) {
-      setError('Le mot de passe doit contenir au moins 10 caractères.');
-      return;
-    }
+    if (!email || !password) return setError('Veuillez remplir tous les champs.');
+    if (!isLogin && password.length < 10) return setError('Le mot de passe doit contenir au moins 10 caractères.');
 
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError("Email ou mot de passe incorrect");
-      }
+      if (error) setError("Email ou mot de passe incorrect");
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        setError(error.message);
-      } else {
-        setMessage("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.");
-      }
+      if (error) setError(error.message);
+      else setMessage("Inscription réussie ! Veuillez vérifier votre email.");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow animate-fade-in">
-      <h2 className="text-xl font-bold mb-4">{isLogin ? 'Connexion' : 'Inscription'}</h2>
-      {error && <p className="text-red-600 text-sm mb-2 animate-pulse">{error}</p>}
-      {message && <p className="text-green-600 text-sm mb-2 animate-fade-in">{message}</p>}
-      <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="mb-2" />
-      <div className="relative">
-        <Input
-          type={showPassword ? "text" : "password"}
-          placeholder="Mot de passe"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="mb-1 pr-10"
-        />
-        <button
-          onClick={() => setShowPassword(!showPassword)}
-          type="button"
-          className="absolute right-2 top-2 text-sm text-blue-600"
-        >
-          {showPassword ? 'Cacher' : 'Voir'}
-        </button>
-      </div>
-      <p className={`text-xs ${passwordColor} mb-2`}>Force du mot de passe : {passwordStrength}</p>
-      <Button onClick={handleAuth}>{isLogin ? 'Se connecter' : 'Créer un compte'}</Button>
-      <div className="mt-2 text-sm text-center">
-        {isLogin ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
-        <button onClick={() => setIsLogin(!isLogin)} className="text-blue-600 underline">
-          {isLogin ? 'Créer un compte' : 'Se connecter'}
-        </button>
+    <div className="container mt-5" style={{ maxWidth: 500 }}>
+      <div className="card p-4 shadow">
+        <h2 className="mb-3">{isLogin ? 'Connexion' : 'Inscription'}</h2>
+        {error && <div className="alert alert-danger py-1">{error}</div>}
+        {message && <div className="alert alert-success py-1">{message}</div>}
+        <input className="form-control mb-2" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+        <div className="input-group mb-1">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            className="form-control"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <button className="btn btn-outline-secondary" type="button" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? 'Cacher' : 'Voir'}
+          </button>
+        </div>
+        <div className={`small ${passwordColor} mb-3`}>Force : {passwordStrength}</div>
+        <button className="btn btn-primary w-100 mb-2" onClick={handleAuth}>{isLogin ? 'Se connecter' : 'Créer un compte'}</button>
+        <p className="text-center small">
+          {isLogin ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
+          <span className="text-primary" role="button" onClick={() => setIsLogin(!isLogin)}>
+            {isLogin ? 'Créer un compte' : 'Se connecter'}
+          </span>
+        </p>
       </div>
     </div>
   );
