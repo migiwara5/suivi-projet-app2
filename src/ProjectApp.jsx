@@ -86,18 +86,38 @@ function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleAuth = async () => {
+    setError('');
+    setMessage('');
+
+    if (!email || !password) {
+      setError('Veuillez remplir tous les champs.');
+      return;
+    }
+
     if (isLogin) {
-      await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError("Email ou mot de passe incorrect");
+      }
     } else {
-      await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage("Inscription réussie ! Veuillez vérifier votre email.");
+      }
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow">
       <h2 className="text-xl font-bold mb-4">{isLogin ? 'Connexion' : 'Inscription'}</h2>
+      {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+      {message && <p className="text-green-600 text-sm mb-2">{message}</p>}
       <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="mb-2" />
       <Input type="password" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} className="mb-2" />
       <Button onClick={handleAuth}>{isLogin ? 'Se connecter' : 'Créer un compte'}</Button>
