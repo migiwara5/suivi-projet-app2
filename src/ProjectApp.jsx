@@ -109,9 +109,13 @@ export default function ProjectApp() {
 function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+
+  const passwordStrength = password.length >= 10 ? 'Fort' : password.length >= 6 ? 'Moyen' : 'Faible';
+  const passwordColor = password.length >= 10 ? 'text-green-600' : password.length >= 6 ? 'text-yellow-600' : 'text-red-600';
 
   const handleAuth = async () => {
     setError('');
@@ -137,18 +141,34 @@ function AuthForm() {
       if (error) {
         setError(error.message);
       } else {
-        setMessage("Inscription réussie ! Veuillez vérifier votre email.");
+        setMessage("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.");
       }
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow">
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow animate-fade-in">
       <h2 className="text-xl font-bold mb-4">{isLogin ? 'Connexion' : 'Inscription'}</h2>
-      {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-      {message && <p className="text-green-600 text-sm mb-2">{message}</p>}
+      {error && <p className="text-red-600 text-sm mb-2 animate-pulse">{error}</p>}
+      {message && <p className="text-green-600 text-sm mb-2 animate-fade-in">{message}</p>}
       <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="mb-2" />
-      <Input type="password" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} className="mb-2" />
+      <div className="relative">
+        <Input
+          type={showPassword ? "text" : "password"}
+          placeholder="Mot de passe"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          className="mb-1 pr-10"
+        />
+        <button
+          onClick={() => setShowPassword(!showPassword)}
+          type="button"
+          className="absolute right-2 top-2 text-sm text-blue-600"
+        >
+          {showPassword ? 'Cacher' : 'Voir'}
+        </button>
+      </div>
+      <p className={`text-xs ${passwordColor} mb-2`}>Force du mot de passe : {passwordStrength}</p>
       <Button onClick={handleAuth}>{isLogin ? 'Se connecter' : 'Créer un compte'}</Button>
       <div className="mt-2 text-sm text-center">
         {isLogin ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
