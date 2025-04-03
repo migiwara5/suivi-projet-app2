@@ -10,7 +10,13 @@ import './index.css';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoY3JtYXRudmp2b2VrbmZkbWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTgxMDUsImV4cCI6MjA1OTE3NDEwNX0.2Wwv3SyqwSIB4DLN0XCvK4yrdbDyACMT1H7jZp51bg0"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoY3JtYXRudmp2b2VrbmZkbWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTgxMDUsImV4cCI6MjA1OTE3NDEwNX0.2Wwv3SyqwSIB4DLN0XCvK4yrdbDyACMT1H7jZp51bg0",
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  }
 );
 
 export default function ProjectApp() {
@@ -56,6 +62,8 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
+  console.log("Session:", session);
+
   if (!session) {
     return <AuthForm />;
   }
@@ -72,7 +80,7 @@ export default function ProjectApp() {
           <Button onClick={addTask}>Ajouter</Button>
         </div>
 
-        {["À faire", "En cours", "Terminé"].map(status => (
+        {"À faire,En cours,Terminé".split(",").map(status => (
           <Card key={status}>
             <CardContent>
               <h2 className="font-semibold mb-2">{status}</h2>
