@@ -58,12 +58,20 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
+
   if (session === undefined) return <div className="text-center p-4">Chargement...</div>;
   if (!session) return <AuthForm />;
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">Suivi de projet</h1>
+      <nav className="navbar navbar-light bg-light mb-4">
+        <span className="navbar-brand">Suivi de projet</span>
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
+      </nav>
 
       <div className="row">
         <div className="col-md-4 mb-4">
@@ -78,7 +86,7 @@ export default function ProjectApp() {
             <div className="card">
               <div className="card-header fw-bold">{status}</div>
               <div className="card-body">
-                {tasks.filter(t => t.status === status).map(task => (
+                {Array.isArray(tasks) && tasks.filter(t => t.status === status).map(task => (
                   <div key={task.id} className="border rounded p-2 mb-2">
                     <strong>{task.title}</strong>
                     <p className="mb-1 small text-muted">{task.description}</p>
