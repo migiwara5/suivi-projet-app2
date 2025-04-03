@@ -19,8 +19,20 @@ export default function ProjectApp() {
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    const getCurrentSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data?.session);
+    };
+
+    getCurrentSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => {
+      listener?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   useEffect(() => {
