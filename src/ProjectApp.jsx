@@ -122,6 +122,11 @@ function AuthForm() {
       return;
     }
 
+    if (!isLogin && password.length < 10) {
+      setError('Le mot de passe doit contenir au moins 10 caractères.');
+      return;
+    }
+
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
