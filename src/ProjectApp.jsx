@@ -19,6 +19,7 @@ export default function ProjectApp() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [editingTask, setEditingTask] = useState(null);
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     const getCurrentSession = async () => {
@@ -71,17 +72,20 @@ export default function ProjectApp() {
     }
 
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+    setFeedback('Tâche ajoutée avec succès ✔️');
     fetchTasks();
   };
 
   const updateStatus = async (taskId, newStatus) => {
     await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
+    setFeedback('Statut mis à jour ✅');
     fetchTasks();
   };
 
   const handleDelete = async (taskId) => {
     if (window.confirm("Confirmer la suppression de cette tâche ?")) {
       await supabase.from('tasks').delete().eq('id', taskId);
+      setFeedback('Tâche supprimée 🗑️');
       fetchTasks();
     }
   };
@@ -104,6 +108,7 @@ export default function ProjectApp() {
     }
     setEditingTask(null);
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+    setFeedback('Tâche modifiée avec succès ✏️');
     fetchTasks();
   };
 
@@ -122,6 +127,8 @@ export default function ProjectApp() {
         <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
         <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
       </nav>
+
+      {feedback && <div className="alert alert-info text-center py-2">{feedback}</div>}
 
       <div className="row">
         <div className="col-md-4 mb-4">
