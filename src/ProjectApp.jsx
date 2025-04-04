@@ -26,6 +26,7 @@ export default function ProjectApp() {
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [editingTask, setEditingTask] = useState(null);
   const [feedback, setFeedback] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const getCurrentSession = async () => {
@@ -64,6 +65,7 @@ export default function ProjectApp() {
     if (result.success) {
       setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
       setFeedback('Tâche ajoutée avec succès ✔️');
+      setShowModal(false);
       fetchTasks();
     } else {
       alert(result.message);
@@ -76,6 +78,7 @@ export default function ProjectApp() {
       setEditingTask(null);
       setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
       setFeedback('Tâche modifiée ✏️');
+      setShowModal(false);
       fetchTasks();
     } else {
       alert(result.message);
@@ -99,6 +102,7 @@ export default function ProjectApp() {
   const handleEdit = (task) => {
     setEditingTask(task);
     setNewTask({ title: task.title, description: task.description, due_date: task.due_date, status: task.status });
+    setShowModal(true);
   };
 
   const handleLogout = async () => {
@@ -119,16 +123,11 @@ export default function ProjectApp() {
 
       {feedback && <div className="alert alert-info text-center py-2">{feedback}</div>}
 
-      <div className="row">
-        <div className="col-md-4 mb-4">
-          <input className="form-control mb-2" placeholder="Titre" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
-          <textarea className="form-control mb-2" placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
-          <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
-          <button className="btn btn-primary w-100" onClick={editingTask ? handleUpdate : handleAdd}>
-            {editingTask ? 'Modifier la tâche' : 'Ajouter'}
-          </button>
-        </div>
+      <div className="text-end mb-3">
+        <button className="btn btn-success" onClick={() => { setShowModal(true); setEditingTask(null); }}>+ Ajouter une tâche</button>
+      </div>
 
+      <div className="row">
         {['À faire', 'En cours', 'Terminé'].map(status => (
           <div className="col-md-4 mb-4" key={status}>
             <div className="card">
@@ -153,6 +152,28 @@ export default function ProjectApp() {
           </div>
         ))}
       </div>
+
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{editingTask ? 'Modifier la tâche' : 'Nouvelle tâche'}</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <input className="form-control mb-2" placeholder="Titre" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
+                <textarea className="form-control mb-2" placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
+                <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Annuler</button>
+                <button className="btn btn-primary" onClick={editingTask ? handleUpdate : handleAdd}>{editingTask ? 'Modifier' : 'Ajouter'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
