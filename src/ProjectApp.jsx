@@ -42,13 +42,17 @@ export default function ProjectApp() {
   }, [session]);
 
   const fetchTasks = async () => {
-    const { data } = await supabase.from('tasks').select('*').order('due_date', { ascending: true });
+    const { data } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('due_date', { ascending: true });
     setTasks(data);
   };
 
   const addTask = async () => {
     if (!newTask.title) return;
-    await supabase.from('tasks').insert([newTask]);
+    await supabase.from('tasks').insert([{ ...newTask, user_id: session.user.id }]);
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
