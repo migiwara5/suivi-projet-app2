@@ -42,17 +42,30 @@ export default function ProjectApp() {
   }, [session]);
 
   const fetchTasks = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('tasks')
       .select('*')
       .eq('user_id', session.user.id)
       .order('due_date', { ascending: true });
+
+    if (error) {
+      console.error("Erreur lors du chargement des tâches:", error);
+    }
     setTasks(data);
   };
 
   const addTask = async () => {
     if (!newTask.title) return;
-    await supabase.from('tasks').insert([{ ...newTask, user_id: session.user.id }]);
+
+    const taskToInsert = { ...newTask, user_id: session.user.id };
+    console.log("Insertion de :", taskToInsert);
+
+    const { error } = await supabase.from('tasks').insert([taskToInsert]);
+    if (error) {
+      alert("Erreur lors de l'ajout de la tâche : " + error.message);
+      console.error(error);
+      return;
+    }
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
