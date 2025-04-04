@@ -1,7 +1,13 @@
-// App de suivi de projet (clé en main avec Supabase + Auth + Table + Kanban + Bootstrap CDN)
+// ProjectApp.jsx — composant principal de l'application
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import {
+  addTask,
+  updateStatus,
+  deleteTask,
+  updateTask,
+} from '../utils/tasks';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -9,7 +15,7 @@ const supabase = createClient(
   {
     auth: {
       persistSession: true,
-      autoRefreshToken: true
+      autoRefreshToken: true,
     }
   }
 );
@@ -49,42 +55,42 @@ export default function ProjectApp() {
       .eq('user_id', session.user.id)
       .order('due_date', { ascending: true });
 
-    if (error) {
-      console.error("Erreur lors du chargement des tâches:", error);
-    }
-    setTasks(data);
+    if (error) console.error("Erreur lors du chargement des tâches:", error);
+    else setTasks(data);
   };
 
-  const addTask = async () => {
-    if (!newTask.title) return;
-    if (!session?.user?.id) {
-      alert("Session utilisateur introuvable. Veuillez vous reconnecter.");
-      return;
+  const handleAdd = async () => {
+    const result = await addTask(supabase, session, newTask);
+    if (result.success) {
+      setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+      setFeedback('Tâche ajoutée avec succès ✔️');
+      fetchTasks();
+    } else {
+      alert(result.message);
     }
-
-    const taskToInsert = { ...newTask, user_id: session.user.id };
-    const { data, error } = await supabase.from('tasks').insert([taskToInsert]).select();
-
-    if (error) {
-      alert("Erreur lors de l'ajout de la tâche : " + error.message);
-      console.error(error);
-      return;
-    }
-
-    setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
-    setFeedback('Tâche ajoutée avec succès ✔️');
-    fetchTasks();
   };
 
-  const updateStatus = async (taskId, newStatus) => {
-    await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
+  const handleUpdate = async () => {
+    const result = await updateTask(supabase, editingTask, newTask);
+    if (result.success) {
+      setEditingTask(null);
+      setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+      setFeedback('Tâche modifiée ✏️');
+      fetchTasks();
+    } else {
+      alert(result.message);
+    }
+  };
+
+  const handleStatusUpdate = async (taskId, newStatus) => {
+    await updateStatus(supabase, taskId, newStatus);
     setFeedback('Statut mis à jour ✅');
     fetchTasks();
   };
 
   const handleDelete = async (taskId) => {
     if (window.confirm("Confirmer la suppression de cette tâche ?")) {
-      await supabase.from('tasks').delete().eq('id', taskId);
+      await deleteTask(supabase, taskId);
       setFeedback('Tâche supprimée 🗑️');
       fetchTasks();
     }
@@ -95,30 +101,13 @@ export default function ProjectApp() {
     setNewTask({ title: task.title, description: task.description, due_date: task.due_date, status: task.status });
   };
 
-  const handleUpdate = async () => {
-    if (!editingTask) return;
-    const { error } = await supabase
-      .from('tasks')
-      .update({ ...newTask })
-      .eq('id', editingTask.id);
-    if (error) {
-      alert("Erreur lors de la mise à jour : " + error.message);
-      console.error(error);
-      return;
-    }
-    setEditingTask(null);
-    setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
-    setFeedback('Tâche modifiée avec succès ✏️');
-    fetchTasks();
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setSession(null);
   };
 
   if (session === undefined) return <div className="text-center p-4">Chargement...</div>;
-  if (!session) return <AuthForm />;
+  if (!session) return <AuthForm supabase={supabase} />;
 
   return (
     <div className="container mt-4">
@@ -135,7 +124,7 @@ export default function ProjectApp() {
           <input className="form-control mb-2" placeholder="Titre" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
           <textarea className="form-control mb-2" placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
           <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
-          <button className="btn btn-primary w-100" onClick={editingTask ? handleUpdate : addTask}>
+          <button className="btn btn-primary w-100" onClick={editingTask ? handleUpdate : handleAdd}>
             {editingTask ? 'Modifier la tâche' : 'Ajouter'}
           </button>
         </div>
@@ -152,7 +141,7 @@ export default function ProjectApp() {
                     <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
                     <div className="d-flex justify-content-between">
                       {status !== 'Terminé' && (
-                        <button className="btn btn-sm btn-outline-success" onClick={() => updateStatus(task.id, status === 'À faire' ? 'En cours' : 'Terminé')}>Passer à {status === 'À faire' ? 'En cours' : 'Terminé'}</button>
+                        <button className="btn btn-sm btn-outline-success" onClick={() => handleStatusUpdate(task.id, status === 'À faire' ? 'En cours' : 'Terminé')}>Passer à {status === 'À faire' ? 'En cours' : 'Terminé'}</button>
                       )}
                       <button className="btn btn-sm btn-outline-primary ms-1" onClick={() => handleEdit(task)}>Modifier</button>
                       <button className="btn btn-sm btn-outline-danger ms-1" onClick={() => handleDelete(task.id)}>Supprimer</button>
@@ -168,7 +157,7 @@ export default function ProjectApp() {
   );
 }
 
-function AuthForm() {
+function AuthForm({ supabase }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
