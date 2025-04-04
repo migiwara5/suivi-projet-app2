@@ -1,4 +1,4 @@
-// App de suivi de projet (clé en main avec Supabase + Auth + Table + Kanban + Bootstrap CSS)
+// App de suivi de projet (clé en main avec Supabase + Auth + Table + Kanban + Bootstrap CDN)
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -18,6 +18,7 @@ export default function ProjectApp() {
   const [session, setSession] = useState(undefined);
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     const getCurrentSession = async () => {
@@ -61,23 +62,48 @@ export default function ProjectApp() {
     }
 
     const taskToInsert = { ...newTask, user_id: session.user.id };
-    console.log("Tentative d'insertion de tâche pour:", session.user.email);
-    console.log("Données insérées:", taskToInsert);
-
     const { data, error } = await supabase.from('tasks').insert([taskToInsert]).select();
+
     if (error) {
       alert("Erreur lors de l'ajout de la tâche : " + error.message);
       console.error(error);
       return;
     }
 
-    console.log("Tâche insérée avec succès:", data);
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
 
   const updateStatus = async (taskId, newStatus) => {
     await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
+    fetchTasks();
+  };
+
+  const handleDelete = async (taskId) => {
+    if (window.confirm("Confirmer la suppression de cette tâche ?")) {
+      await supabase.from('tasks').delete().eq('id', taskId);
+      fetchTasks();
+    }
+  };
+
+  const handleEdit = (task) => {
+    setEditingTask(task);
+    setNewTask({ title: task.title, description: task.description, due_date: task.due_date, status: task.status });
+  };
+
+  const handleUpdate = async () => {
+    if (!editingTask) return;
+    const { error } = await supabase
+      .from('tasks')
+      .update({ ...newTask })
+      .eq('id', editingTask.id);
+    if (error) {
+      alert("Erreur lors de la mise à jour : " + error.message);
+      console.error(error);
+      return;
+    }
+    setEditingTask(null);
+    setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
 
@@ -102,10 +128,12 @@ export default function ProjectApp() {
           <input className="form-control mb-2" placeholder="Titre" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
           <textarea className="form-control mb-2" placeholder="Description" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
           <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
-          <button className="btn btn-primary w-100" onClick={addTask}>Ajouter</button>
+          <button className="btn btn-primary w-100" onClick={editingTask ? handleUpdate : addTask}>
+            {editingTask ? 'Modifier la tâche' : 'Ajouter'}
+          </button>
         </div>
 
-        {["À faire", "En cours", "Terminé"].map(status => (
+        {['À faire', 'En cours', 'Terminé'].map(status => (
           <div className="col-md-4 mb-4" key={status}>
             <div className="card">
               <div className="card-header fw-bold">{status}</div>
@@ -115,9 +143,13 @@ export default function ProjectApp() {
                     <strong>{task.title}</strong>
                     <p className="mb-1 small text-muted">{task.description}</p>
                     <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
-                    {status !== "Terminé" && (
-                      <button className="btn btn-sm btn-outline-success" onClick={() => updateStatus(task.id, status === "À faire" ? "En cours" : "Terminé")}>Passer à {status === "À faire" ? "En cours" : "Terminé"}</button>
-                    )}
+                    <div className="d-flex justify-content-between">
+                      {status !== 'Terminé' && (
+                        <button className="btn btn-sm btn-outline-success" onClick={() => updateStatus(task.id, status === 'À faire' ? 'En cours' : 'Terminé')}>Passer à {status === 'À faire' ? 'En cours' : 'Terminé'}</button>
+                      )}
+                      <button className="btn btn-sm btn-outline-primary ms-1" onClick={() => handleEdit(task)}>Modifier</button>
+                      <button className="btn btn-sm btn-outline-danger ms-1" onClick={() => handleDelete(task.id)}>Supprimer</button>
+                    </div>
                   </div>
                 ))}
               </div>
