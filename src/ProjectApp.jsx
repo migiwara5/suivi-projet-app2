@@ -56,16 +56,23 @@ export default function ProjectApp() {
 
   const addTask = async () => {
     if (!newTask.title) return;
+    if (!session?.user?.id) {
+      alert("Session utilisateur introuvable. Veuillez vous reconnecter.");
+      return;
+    }
 
     const taskToInsert = { ...newTask, user_id: session.user.id };
-    console.log("Insertion de :", taskToInsert);
+    console.log("Tentative d'insertion de tâche pour:", session.user.email);
+    console.log("Données insérées:", taskToInsert);
 
-    const { error } = await supabase.from('tasks').insert([taskToInsert]);
+    const { data, error } = await supabase.from('tasks').insert([taskToInsert]).select();
     if (error) {
       alert("Erreur lors de l'ajout de la tâche : " + error.message);
       console.error(error);
       return;
     }
+
+    console.log("Tâche insérée avec succès:", data);
     setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
@@ -85,8 +92,9 @@ export default function ProjectApp() {
 
   return (
     <div className="container mt-4">
-      <nav className="navbar navbar-light bg-light mb-4">
+      <nav className="navbar navbar-light bg-light mb-4 justify-content-between">
         <span className="navbar-brand">Suivi de projet</span>
+        <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
         <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
       </nav>
 
