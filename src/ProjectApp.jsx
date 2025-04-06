@@ -7,7 +7,8 @@ import {
   updateStatus,
   deleteTask,
   updateTask,
-} from '../utils/tasks';
+} import { ... } from './tasks';
+
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
