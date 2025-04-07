@@ -33,3 +33,31 @@ export async function updateTask(taskId, updates) {
   const { error } = await supabase.from('tasks').update(updates).eq('id', taskId);
   if (error) throw error;
 }
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  "https://uhcrmatnvjvoeknfdmat.supabase.co",
+  "YOUR_SUPABASE_KEY"
+);
+
+export async function addComment({ task_id, user_id, email, content }) {
+  const { data, error } = await supabase
+    .from('comments')
+    .insert([{ task_id, user_id, email, content }]);
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getComments(task_id) {
+  const { data, error } = await supabase
+    .from('comments')
+    .select('*')
+    .eq('task_id', task_id)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
