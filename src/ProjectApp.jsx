@@ -7,8 +7,9 @@ import {
   updateStatus,
   deleteTask,
   updateTask,
-} from './utils/tasks.js';
+} from './utils/tasks';
 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -21,30 +22,10 @@ const supabase = createClient(
   }
 );
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-
 export default function ProjectApp() {
-  return (
-    <Router>
-      <nav style={{ padding: '1rem', background: '#f0f0f0', marginBottom: '1rem' }}>
-        <Link to="/todo" style={{ marginRight: '1rem' }}>📋 Tâches à faire</Link>
-        <Link to="/in-progress" style={{ marginRight: '1rem' }}>🚧 Tâches en cours</Link>
-        <Link to="/done">✅ Tâches terminées</Link>
-      </nav>
-      <Routes>
-        <Route path="/todo" element={<TaskTable status="À faire" />} />
-        <Route path="/in-progress" element={<TaskTable status="En cours" />} />
-        <Route path="/done" element={<TaskTable status="Terminé" />} />
-      </Routes>
-    </Router>
-  );
-}
-
-function TaskTable({ status }) {
   const [session, setSession] = useState(undefined);
+  const [form, setForm] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [tasks, setTasks] = useState([]);
-  const [editingTask, setEditingTask] = useState(null);
-  const [form, setForm] = useState({ title: '', description: '', due_date: '', status: status });
 
   useEffect(() => {
     const init = async () => {
@@ -59,31 +40,18 @@ function TaskTable({ status }) {
   }, [session]);
 
   const fetchTasks = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('tasks')
       .select('*')
       .eq('user_id', session.user.id)
-      .eq('status', status)
       .order('due_date', { ascending: true });
 
-    if (!error) setTasks(data);
+    if (data) setTasks(data);
   };
 
-  const handleDelete = async (id) => {
-    if (confirm("Supprimer cette tâche ?")) {
-      await deleteTask(id);
-      fetchTasks();
-    }
-  };
-
-  const handleStatusChange = async (id, newStatus) => {
-    await updateStatus(id, newStatus);
-    fetchTasks();
-  };
-
-  const handleEdit = (task) => {
-    setEditingTask(task);
-    setForm({ title: task.title, description: task.description, due_date: task.due_date, status: task.status });
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
   };
 
   const handleFormChange = (e) => {
@@ -93,8 +61,8 @@ function TaskTable({ status }) {
 
   const handleFormSubmit = async () => {
     if (!form.title || !form.due_date) return alert("Titre et date requis");
-    await updateTask(editingTask.id, form);
-    setEditingTask(null);
+    await addTask({ ...form, user_id: session.user.id });
+    setForm({ title: '', description: '', due_date: '', status: 'À faire' });
     fetchTasks();
   };
 
@@ -102,47 +70,45 @@ function TaskTable({ status }) {
   if (!session) return <div>Non connecté</div>;
 
   return (
-    <div className="container">
-      <h2>{status}</h2>
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Date de livraison</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map(task => (
-            <tr key={task.id}>
-              <td>{task.title}</td>
-              <td>{task.description}</td>
-              <td>{task.status}</td>
-              <td>{task.due_date}</td>
-              <td>
-                <button className="btn btn-sm btn-primary me-2" onClick={() => handleStatusChange(task.id, getNextStatus(task.status))}>Changer statut</button>
-                <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(task)}>Modifier</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleDelete(task.id)}>Supprimer</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="container mt-4">
+      <nav className="navbar navbar-light bg-light mb-4 justify-content-between">
+        <span className="navbar-brand">Suivi de projet</span>
+        <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
+      </nav>
 
-      {editingTask && (
-        <div className="card p-3 mb-3">
-          <h5>Modifier la tâche</h5>
-          <input name="title" className="form-control mb-2" placeholder="Titre" value={form.title} onChange={handleFormChange} />
-          <textarea name="description" className="form-control mb-2" placeholder="Description" value={form.description} onChange={handleFormChange} />
-          <input type="date" name="due_date" className="form-control mb-2" value={form.due_date} onChange={handleFormChange} />
-          <div className="d-flex gap-2">
-            <button className="btn btn-success" onClick={handleFormSubmit}>Enregistrer</button>
-            <button className="btn btn-secondary" onClick={() => setEditingTask(null)}>Annuler</button>
+      <div className="card p-3 mb-4">
+        <h5>Ajouter une tâche</h5>
+        <input name="title" className="form-control mb-2" placeholder="Titre" value={form.title} onChange={handleFormChange} />
+        <textarea name="description" className="form-control mb-2" placeholder="Description" value={form.description} onChange={handleFormChange} />
+        <input type="date" name="due_date" className="form-control mb-2" value={form.due_date} onChange={handleFormChange} />
+        <button className="btn btn-primary" onClick={handleFormSubmit}>Ajouter</button>
+      </div>
+
+      <div className="row">
+        {['À faire', 'En cours', 'Terminé'].map(status => (
+          <div className="col-md-4 mb-4" key={status}>
+            <div className="card">
+              <div className="card-header fw-bold">{status}</div>
+              <div className="card-body">
+                {tasks.filter(task => task.status === status).map(task => (
+                  <div key={task.id} className="border rounded p-2 mb-2">
+                    <strong>{task.title}</strong>
+                    <p className="mb-1 small text-muted">{task.description}</p>
+                    <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
+                    {status !== 'Terminé' && (
+                      <button className="btn btn-sm btn-outline-success" onClick={() => {
+                        updateStatus(task.id, getNextStatus(task.status));
+                        fetchTasks();
+                      }}>Passer à {getNextStatus(task.status)}</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
@@ -152,4 +118,3 @@ function getNextStatus(current) {
   if (current === "En cours") return "Terminé";
   return "À faire";
 }
-
