@@ -19,6 +19,8 @@ const supabase = createClient(
 export default function ProjectApp() {
   const [session, setSession] = useState(undefined);
   const [tasks, setTasks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDate, setFilterDate] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [commentContent, setCommentContent] = useState('');
@@ -41,10 +43,7 @@ export default function ProjectApp() {
   }, [session]);
 
   const fetchTasks = async () => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', session.user.id);
+    const { data, error } = await supabase.from('tasks').select('*').eq('user_id', session.user.id);
     if (error) console.error(error);
     else setTasks(data);
   };
@@ -105,12 +104,43 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDate = filterDate ? task.due_date === filterDate : true;
+    return matchesSearch && matchesDate;
+  });
+
+  const renderNavbar = () => (
+    <nav className="navbar navbar-expand-lg navbar-light bg-light mb-3 shadow-sm rounded px-3">
+      <span className="navbar-brand">
+        <img src="https://api.iconify.design/fluent-mdl2:task-logo.svg" alt="logo" width="30" className="me-2" />
+        Suivi Projet
+      </span>
+      <div className="d-flex ms-auto">
+        <input
+          className="form-control me-2"
+          placeholder="Rechercher une tâche"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <input
+          type="date"
+          className="form-control me-2"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+        />
+        <button className="btn btn-outline-secondary" onClick={() => { setSearchTerm(''); setFilterDate(''); }}>Réinitialiser</button>
+      </div>
+    </nav>
+  );
+
   if (session === undefined) return <div>Chargement...</div>;
   if (!session) return <div>Non connecté</div>;
 
   return (
-    <div className="container mt-4">
-      <h2>Bienvenue, {session.user.email}</h2>
+    <div className="container mt-2">
+      {renderNavbar()}
+      <h5 className="text-muted mb-3">Connecté en tant que {session.user.email}</h5>
 
       <ul className="nav nav-tabs mb-3">
         {['Accueil', 'À faire', 'En cours', 'Terminé'].map(tab => (
@@ -130,7 +160,7 @@ export default function ProjectApp() {
             <div className="col-md-4" key={status}>
               <h4>{status}</h4>
               <ul className="list-group">
-                {tasks.filter(t => t.status === status).map(task => (
+                {filteredTasks.filter(t => t.status === status).map(task => (
                   <li className="list-group-item d-flex justify-content-between align-items-center" key={task.id}>
                     {task.title}
                     <button className="btn btn-sm btn-outline-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détail</button>
@@ -151,7 +181,7 @@ export default function ProjectApp() {
             </tr>
           </thead>
           <tbody>
-            {tasks.filter(t => t.status === activeTab).map(task => (
+            {filteredTasks.filter(t => t.status === activeTab).map(task => (
               <tr key={task.id}>
                 <td>{task.title}</td>
                 <td>{task.description}</td>
@@ -206,7 +236,6 @@ export default function ProjectApp() {
                 <p><strong>Description :</strong> {selectedTask.description}</p>
                 <p><strong>Statut :</strong> {selectedTask.status}</p>
                 <p><strong>Date de livraison :</strong> {selectedTask.due_date}</p>
-
                 <h6>Commentaires :</h6>
                 <ul className="list-group mb-2">
                   {comments.map((c, i) => (
@@ -216,7 +245,6 @@ export default function ProjectApp() {
                     </li>
                   ))}
                 </ul>
-
                 <textarea
                   className="form-control mb-2"
                   placeholder="Ajouter un commentaire..."
