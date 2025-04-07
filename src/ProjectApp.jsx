@@ -9,7 +9,13 @@ import {
   updateTask,
 } from './utils/tasks';
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from 'react-router-dom';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -72,14 +78,34 @@ export default function ProjectApp() {
   if (!session) return <div>Non connecté</div>;
 
   return (
-    <div className="container mt-4">
-      <nav className="navbar navbar-light bg-light mb-4 justify-content-between">
-        <span className="navbar-brand">Suivi de projet</span>
-        <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
-        <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
-      </nav>
+    <Router>
+      <div className="container mt-4">
+        <nav className="navbar navbar-light bg-light mb-4 justify-content-between">
+          <span className="navbar-brand">Suivi de projet</span>
+          <div>
+            <Link className="btn btn-outline-secondary mx-1" to="/">Résumé</Link>
+            <Link className="btn btn-outline-secondary mx-1" to="/taches-a-faire">Tâches à faire</Link>
+            <Link className="btn btn-outline-secondary mx-1" to="/taches-en-cours">Tâches en cours</Link>
+            <Link className="btn btn-outline-secondary mx-1" to="/taches-terminees">Tâches terminées</Link>
+          </div>
+          <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
+          <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
+        </nav>
 
-      {/* Bouton flottant */}
+        <Routes>
+          <Route path="/" element={<Summary tasks={tasks} fetchTasks={fetchTasks} session={session} form={form} handleFormChange={handleFormChange} handleFormSubmit={handleFormSubmit} showModal={showModal} setShowModal={setShowModal} />} />
+          <Route path="/taches-a-faire" element={<TaskTable tasks={tasks} status="À faire" />} />
+          <Route path="/taches-en-cours" element={<TaskTable tasks={tasks} status="En cours" />} />
+          <Route path="/taches-terminees" element={<TaskTable tasks={tasks} status="Terminé" />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFormSubmit, showModal, setShowModal }) {
+  return (
+    <>
       <button
         className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4"
         style={{ width: '60px', height: '60px', fontSize: '24px' }}
@@ -88,7 +114,6 @@ export default function ProjectApp() {
         +
       </button>
 
-      {/* Modal d'ajout */}
       {showModal && (
         <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
@@ -123,8 +148,8 @@ export default function ProjectApp() {
                     <p className="mb-1 small text-muted">{task.description}</p>
                     <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
                     {status !== 'Terminé' && (
-                      <button className="btn btn-sm btn-outline-success" onClick={() => {
-                        updateStatus(task.id, getNextStatus(task.status));
+                      <button className="btn btn-sm btn-outline-success" onClick={async () => {
+                        await updateStatus(task.id, getNextStatus(task.status));
                         fetchTasks();
                       }}>Passer à {getNextStatus(task.status)}</button>
                     )}
@@ -135,6 +160,35 @@ export default function ProjectApp() {
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+function TaskTable({ tasks, status }) {
+  const filtered = tasks.filter(task => task.status === status);
+  return (
+    <div>
+      <h2>{status}</h2>
+      <table className="table table-striped">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Description</th>
+            <th>Statut</th>
+            <th>Date de livraison</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map(task => (
+            <tr key={task.id}>
+              <td>{task.title}</td>
+              <td>{task.description}</td>
+              <td>{task.status}</td>
+              <td>{task.due_date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
