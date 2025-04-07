@@ -24,7 +24,7 @@ export default function ProjectApp() {
   const [commentContent, setCommentContent] = useState('');
   const [comments, setComments] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
-  const [activeTab, setActiveTab] = useState('À faire');
+  const [activeTab, setActiveTab] = useState('Accueil');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -113,7 +113,7 @@ export default function ProjectApp() {
       <h2>Bienvenue, {session.user.email}</h2>
 
       <ul className="nav nav-tabs mb-3">
-        {["À faire", "En cours", "Terminé"].map(tab => (
+        {['Accueil', 'À faire', 'En cours', 'Terminé'].map(tab => (
           <li className="nav-item" key={tab}>
             <button className={`nav-link ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
           </li>
@@ -124,35 +124,53 @@ export default function ProjectApp() {
         <button className="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Nouvelle tâche</button>
       </div>
 
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Description</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.filter(t => t.status === activeTab).map(task => (
-            <tr key={task.id}>
-              <td>{task.title}</td>
-              <td>{task.description}</td>
-              <td>{task.due_date}</td>
-              <td>
-                <div className="d-flex gap-1">
-                  <button className="btn btn-sm btn-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
-                  <button className="btn btn-sm btn-secondary" onClick={() => handleEditTask(task)}>Modifier</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-                  {task.status !== 'Terminé' && (
-                    <button className="btn btn-sm btn-success" onClick={() => handleUpdateStatus(task)}>Suivant</button>
-                  )}
-                </div>
-              </td>
-            </tr>
+      {activeTab === 'Accueil' ? (
+        <div className="row">
+          {['À faire', 'En cours', 'Terminé'].map(status => (
+            <div className="col-md-4" key={status}>
+              <h4>{status}</h4>
+              <ul className="list-group">
+                {tasks.filter(t => t.status === status).map(task => (
+                  <li className="list-group-item d-flex justify-content-between align-items-center" key={task.id}>
+                    {task.title}
+                    <button className="btn btn-sm btn-outline-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détail</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      ) : (
+        <table className="table table-bordered">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.filter(t => t.status === activeTab).map(task => (
+              <tr key={task.id}>
+                <td>{task.title}</td>
+                <td>{task.description}</td>
+                <td>{task.due_date}</td>
+                <td>
+                  <div className="d-flex gap-1">
+                    <button className="btn btn-sm btn-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
+                    <button className="btn btn-sm btn-secondary" onClick={() => handleEditTask(task)}>Modifier</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
+                    {task.status !== 'Terminé' && (
+                      <button className="btn btn-sm btn-success" onClick={() => handleUpdateStatus(task)}>Suivant</button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {/* Modal Ajouter Tâche */}
       <div className="modal fade" id="addTaskModal" tabIndex="-1">
