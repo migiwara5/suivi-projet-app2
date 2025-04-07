@@ -1,46 +1,37 @@
-// ProjectApp.jsx — composant principal de l'application 
+// src/ProjectApp.jsx
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
   addTask,
   updateStatus,
   deleteTask,
   updateTask,
+  addComment,
+  getComments
 } from './utils/tasks';
-
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useNavigate,
-} from 'react-router-dom';
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoY3JtYXRudmp2b2VrbmZkbWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTgxMDUsImV4cCI6MjA1OTE3NDEwNX0.2Wwv3SyqwSIB4DLN0XCvK4yrdbDyACMT1H7jZp51bg0",
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    }
-  }
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoY3JtYXRudmp2b2VrbmZkbWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTgxMDUsImV4cCI6MjA1OTE3NDEwNX0.2Wwv3SyqwSIB4DLN0XCvK4yrdbDyACMT1H7jZp51bg0"
 );
 
 export default function ProjectApp() {
   const [session, setSession] = useState(undefined);
-  const [form, setForm] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [tasks, setTasks] = useState([]);
-  const [showModal, setShowModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
+  const [commentContent, setCommentContent] = useState('');
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-    };
-    init();
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => listener?.subscription?.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -48,200 +39,114 @@ export default function ProjectApp() {
   }, [session]);
 
   const fetchTasks = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('tasks')
       .select('*')
-      .eq('user_id', session.user.id)
-      .order('due_date', { ascending: true });
-
-    if (data) setTasks(data);
+      .eq('user_id', session.user.id);
+    if (error) console.error(error);
+    else setTasks(data);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
+  const fetchComments = async (task_id) => {
+    const data = await getComments(task_id);
+    setComments(data);
   };
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const handleAddComment = async () => {
+    if (!commentContent || !selectedTask) return;
+    try {
+      await addComment({
+        task_id: selectedTask.id,
+        user_id: session.user.id,
+        email: session.user.email,
+        content: commentContent,
+      });
+      setCommentContent('');
+      fetchComments(selectedTask.id);
+    } catch (e) {
+      alert("Erreur : " + e.message);
+    }
   };
 
-  const handleFormSubmit = async () => {
-    if (!form.title || !form.due_date) return alert("Titre et date requis");
-    await addTask({ ...form, user_id: session.user.id });
-    setForm({ title: '', description: '', due_date: '', status: 'À faire' });
-    setShowModal(false);
-    fetchTasks();
-  };
-
-  const handleShowDetails = (task) => {
-    setSelectedTask(task);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedTask(null);
+  const handleAddTask = async () => {
+    try {
+      await addTask({ ...newTask, user_id: session.user.id });
+      setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+      fetchTasks();
+    } catch (e) {
+      alert("Erreur : " + e.message);
+    }
   };
 
   if (session === undefined) return <div>Chargement...</div>;
   if (!session) return <div>Non connecté</div>;
 
   return (
-    <Router>
-      <div className="container mt-4">
-        <nav className="navbar navbar-light bg-light mb-4 justify-content-between">
-          <span className="navbar-brand">Suivi de projet</span>
-          <div>
-            <Link className="btn btn-outline-secondary mx-1" to="/">Résumé</Link>
-            <Link className="btn btn-outline-secondary mx-1" to="/taches-a-faire">Tâches à faire</Link>
-            <Link className="btn btn-outline-secondary mx-1" to="/taches-en-cours">Tâches en cours</Link>
-            <Link className="btn btn-outline-secondary mx-1" to="/taches-terminees">Tâches terminées</Link>
-          </div>
-          <span className="text-muted small">Connecté en tant que : {session.user.email}</span>
-          <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
-        </nav>
+    <div className="container mt-4">
+      <h2>Bienvenue, {session.user.email}</h2>
+      <div className="mb-3">
+        <input placeholder="Titre" className="form-control mb-2" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
+        <textarea placeholder="Description" className="form-control mb-2" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
+        <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
+        <button className="btn btn-primary" onClick={handleAddTask}>Ajouter</button>
+      </div>
 
-        <Routes>
-          <Route path="/" element={<Summary tasks={tasks} fetchTasks={fetchTasks} session={session} form={form} handleFormChange={handleFormChange} handleFormSubmit={handleFormSubmit} showModal={showModal} setShowModal={setShowModal} handleShowDetails={handleShowDetails} />} />
-          <Route path="/taches-a-faire" element={<TaskTable tasks={tasks} status="À faire" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
-          <Route path="/taches-en-cours" element={<TaskTable tasks={tasks} status="En cours" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
-          <Route path="/taches-terminees" element={<TaskTable tasks={tasks} status="Terminé" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
-        </Routes>
-
-        {selectedTask && (
-          <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Détail de la tâche</h5>
-                  <button type="button" className="btn-close" onClick={handleCloseDetails}></button>
-                </div>
-                <div className="modal-body">
-                  <p><strong>Titre :</strong> {selectedTask.title}</p>
-                  <p><strong>Description :</strong> {selectedTask.description}</p>
-                  <p><strong>Statut :</strong> {selectedTask.status}</p>
-                  <p><strong>Date :</strong> {selectedTask.due_date}</p>
-                  <textarea className="form-control" placeholder="Ajouter un commentaire..."></textarea>
-                </div>
-                <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={handleCloseDetails}>Fermer</button>
+      <div className="row">
+        {["À faire", "En cours", "Terminé"].map(status => (
+          <div className="col-md-4" key={status}>
+            <h4>{status}</h4>
+            {tasks.filter(t => t.status === status).map(task => (
+              <div key={task.id} className="card mb-2 p-2">
+                <strong>{task.title}</strong>
+                <p>{task.description}</p>
+                <small>{task.due_date}</small>
+                <div>
+                  <button className="btn btn-sm btn-info me-1" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        )}
+        ))}
       </div>
-    </Router>
-  );
-}
 
-function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFormSubmit, showModal, setShowModal, handleShowDetails }) {
-  return (
-    <>
-      <button
-        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4"
-        style={{ width: '60px', height: '60px', fontSize: '24px' }}
-        onClick={() => setShowModal(true)}
-      >
-        +
-      </button>
-
-      {showModal && (
+      {selectedTask && (
         <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Ajouter une tâche</h5>
-                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                <h5 className="modal-title">Détail : {selectedTask.title}</h5>
+                <button className="btn-close" onClick={() => { setSelectedTask(null); setCommentContent(''); setComments([]); }}></button>
               </div>
               <div className="modal-body">
-                <input name="title" className="form-control mb-2" placeholder="Titre" value={form.title} onChange={handleFormChange} />
-                <textarea name="description" className="form-control mb-2" placeholder="Description" value={form.description} onChange={handleFormChange} />
-                <input type="date" name="due_date" className="form-control mb-2" value={form.due_date} onChange={handleFormChange} />
+                <p><strong>Description :</strong> {selectedTask.description}</p>
+                <p><strong>Statut :</strong> {selectedTask.status}</p>
+                <p><strong>Date de livraison :</strong> {selectedTask.due_date}</p>
+
+                <h6>Commentaires :</h6>
+                <ul className="list-group mb-2">
+                  {comments.map((c, i) => (
+                    <li key={i} className="list-group-item">
+                      <strong>{c.email}</strong> ({new Date(c.created_at).toLocaleString()}):<br />
+                      {c.content}
+                    </li>
+                  ))}
+                </ul>
+
+                <textarea
+                  className="form-control mb-2"
+                  placeholder="Ajouter un commentaire..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                ></textarea>
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Annuler</button>
-                <button className="btn btn-primary" onClick={handleFormSubmit}>Ajouter</button>
+                <button className="btn btn-secondary" onClick={() => { setSelectedTask(null); setCommentContent(''); setComments([]); }}>Fermer</button>
+                <button className="btn btn-primary" onClick={handleAddComment}>Sauvegarder le commentaire</button>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      <div className="row">
-        {['À faire', 'En cours', 'Terminé'].map(status => (
-          <div className="col-md-4 mb-4" key={status}>
-            <div className="card">
-              <div className="card-header fw-bold">{status}</div>
-              <div className="card-body">
-                {tasks.filter(task => task.status === status).map(task => (
-                  <div key={task.id} className="border rounded p-2 mb-2">
-                    <strong>{task.title}</strong>
-                    <p className="mb-1 small text-muted">{task.description}</p>
-                    <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
-                    {status !== 'Terminé' && (
-                      <button className="btn btn-sm btn-outline-success me-1" onClick={async () => {
-                        await updateStatus(task.id, getNextStatus(task.status));
-                        fetchTasks();
-                      }}>Passer à {getNextStatus(task.status)}</button>
-                    )}
-                    <button className="btn btn-sm btn-outline-info" onClick={() => handleShowDetails(task)}>Détails</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-function TaskTable({ tasks, status, fetchTasks, handleShowDetails }) {
-  const filtered = tasks.filter(task => task.status === status);
-  return (
-    <div>
-      <h2>{status}</h2>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Description</th>
-            <th>Statut</th>
-            <th>Date de livraison</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map(task => (
-            <tr key={task.id}>
-              <td>{task.title}</td>
-              <td>{task.description}</td>
-              <td>{task.status}</td>
-              <td>{task.due_date}</td>
-              <td>
-                {status !== 'Terminé' && (
-                  <button className="btn btn-sm btn-outline-success me-1" onClick={async () => {
-                    await updateStatus(task.id, getNextStatus(task.status));
-                    fetchTasks();
-                  }}>Suivant</button>
-                )}
-                <button className="btn btn-sm btn-outline-danger me-1" onClick={async () => {
-                  await deleteTask(task.id);
-                  fetchTasks();
-                }}>Supprimer</button>
-                <button className="btn btn-sm btn-outline-info" onClick={() => handleShowDetails(task)}>Détails</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
-}
-
-function getNextStatus(current) {
-  if (current === "À faire") return "En cours";
-  if (current === "En cours") return "Terminé";
-  return "À faire";
 }
