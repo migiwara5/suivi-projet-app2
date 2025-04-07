@@ -23,6 +23,7 @@ export default function ProjectApp() {
   const [newTask, setNewTask] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [commentContent, setCommentContent] = useState('');
   const [comments, setComments] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -78,6 +79,31 @@ export default function ProjectApp() {
     }
   };
 
+  const handleDeleteTask = async (taskId) => {
+    if (confirm("Supprimer cette tâche ?")) {
+      await deleteTask(taskId);
+      fetchTasks();
+    }
+  };
+
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setNewTask({ title: task.title, description: task.description, due_date: task.due_date, status: task.status });
+  };
+
+  const handleUpdateTask = async () => {
+    await updateTask(editingTask.id, newTask);
+    setEditingTask(null);
+    setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
+    fetchTasks();
+  };
+
+  const handleUpdateStatus = async (task) => {
+    const next = task.status === 'À faire' ? 'En cours' : task.status === 'En cours' ? 'Terminé' : 'Terminé';
+    await updateStatus(task.id, next);
+    fetchTasks();
+  };
+
   if (session === undefined) return <div>Chargement...</div>;
   if (!session) return <div>Non connecté</div>;
 
@@ -88,7 +114,11 @@ export default function ProjectApp() {
         <input placeholder="Titre" className="form-control mb-2" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
         <textarea placeholder="Description" className="form-control mb-2" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} />
         <input type="date" className="form-control mb-2" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} />
-        <button className="btn btn-primary" onClick={handleAddTask}>Ajouter</button>
+        {editingTask ? (
+          <button className="btn btn-warning" onClick={handleUpdateTask}>Mettre à jour</button>
+        ) : (
+          <button className="btn btn-primary" onClick={handleAddTask}>Ajouter</button>
+        )}
       </div>
 
       <div className="row">
@@ -100,8 +130,13 @@ export default function ProjectApp() {
                 <strong>{task.title}</strong>
                 <p>{task.description}</p>
                 <small>{task.due_date}</small>
-                <div>
-                  <button className="btn btn-sm btn-info me-1" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
+                <div className="d-flex gap-1">
+                  <button className="btn btn-sm btn-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
+                  <button className="btn btn-sm btn-secondary" onClick={() => handleEditTask(task)}>Modifier</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
+                  {task.status !== 'Terminé' && (
+                    <button className="btn btn-sm btn-success" onClick={() => handleUpdateStatus(task)}>Passer à l'étape suivante</button>
+                  )}
                 </div>
               </div>
             ))}
