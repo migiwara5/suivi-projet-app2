@@ -33,6 +33,7 @@ export default function ProjectApp() {
   const [form, setForm] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -74,6 +75,14 @@ export default function ProjectApp() {
     fetchTasks();
   };
 
+  const handleShowDetails = (task) => {
+    setSelectedTask(task);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedTask(null);
+  };
+
   if (session === undefined) return <div>Chargement...</div>;
   if (!session) return <div>Non connecté</div>;
 
@@ -93,17 +102,40 @@ export default function ProjectApp() {
         </nav>
 
         <Routes>
-          <Route path="/" element={<Summary tasks={tasks} fetchTasks={fetchTasks} session={session} form={form} handleFormChange={handleFormChange} handleFormSubmit={handleFormSubmit} showModal={showModal} setShowModal={setShowModal} />} />
-          <Route path="/taches-a-faire" element={<TaskTable tasks={tasks} status="À faire" />} />
-          <Route path="/taches-en-cours" element={<TaskTable tasks={tasks} status="En cours" />} />
-          <Route path="/taches-terminees" element={<TaskTable tasks={tasks} status="Terminé" />} />
+          <Route path="/" element={<Summary tasks={tasks} fetchTasks={fetchTasks} session={session} form={form} handleFormChange={handleFormChange} handleFormSubmit={handleFormSubmit} showModal={showModal} setShowModal={setShowModal} handleShowDetails={handleShowDetails} />} />
+          <Route path="/taches-a-faire" element={<TaskTable tasks={tasks} status="À faire" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
+          <Route path="/taches-en-cours" element={<TaskTable tasks={tasks} status="En cours" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
+          <Route path="/taches-terminees" element={<TaskTable tasks={tasks} status="Terminé" fetchTasks={fetchTasks} handleShowDetails={handleShowDetails} />} />
         </Routes>
+
+        {selectedTask && (
+          <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Détail de la tâche</h5>
+                  <button type="button" className="btn-close" onClick={handleCloseDetails}></button>
+                </div>
+                <div className="modal-body">
+                  <p><strong>Titre :</strong> {selectedTask.title}</p>
+                  <p><strong>Description :</strong> {selectedTask.description}</p>
+                  <p><strong>Statut :</strong> {selectedTask.status}</p>
+                  <p><strong>Date :</strong> {selectedTask.due_date}</p>
+                  <textarea className="form-control" placeholder="Ajouter un commentaire..."></textarea>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={handleCloseDetails}>Fermer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Router>
   );
 }
 
-function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFormSubmit, showModal, setShowModal }) {
+function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFormSubmit, showModal, setShowModal, handleShowDetails }) {
   return (
     <>
       <button
@@ -148,11 +180,12 @@ function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFor
                     <p className="mb-1 small text-muted">{task.description}</p>
                     <p className="mb-1 text-secondary small">Pour le {task.due_date}</p>
                     {status !== 'Terminé' && (
-                      <button className="btn btn-sm btn-outline-success" onClick={async () => {
+                      <button className="btn btn-sm btn-outline-success me-1" onClick={async () => {
                         await updateStatus(task.id, getNextStatus(task.status));
                         fetchTasks();
                       }}>Passer à {getNextStatus(task.status)}</button>
                     )}
+                    <button className="btn btn-sm btn-outline-info" onClick={() => handleShowDetails(task)}>Détails</button>
                   </div>
                 ))}
               </div>
@@ -164,7 +197,7 @@ function Summary({ tasks, fetchTasks, session, form, handleFormChange, handleFor
   );
 }
 
-function TaskTable({ tasks, status }) {
+function TaskTable({ tasks, status, fetchTasks, handleShowDetails }) {
   const filtered = tasks.filter(task => task.status === status);
   return (
     <div>
@@ -176,6 +209,7 @@ function TaskTable({ tasks, status }) {
             <th>Description</th>
             <th>Statut</th>
             <th>Date de livraison</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -185,6 +219,19 @@ function TaskTable({ tasks, status }) {
               <td>{task.description}</td>
               <td>{task.status}</td>
               <td>{task.due_date}</td>
+              <td>
+                {status !== 'Terminé' && (
+                  <button className="btn btn-sm btn-outline-success me-1" onClick={async () => {
+                    await updateStatus(task.id, getNextStatus(task.status));
+                    fetchTasks();
+                  }}>Suivant</button>
+                )}
+                <button className="btn btn-sm btn-outline-danger me-1" onClick={async () => {
+                  await deleteTask(task.id);
+                  fetchTasks();
+                }}>Supprimer</button>
+                <button className="btn btn-sm btn-outline-info" onClick={() => handleShowDetails(task)}>Détails</button>
+              </td>
             </tr>
           ))}
         </tbody>
