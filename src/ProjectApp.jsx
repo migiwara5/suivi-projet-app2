@@ -26,6 +26,7 @@ export default function ProjectApp() {
   const [session, setSession] = useState(undefined);
   const [form, setForm] = useState({ title: '', description: '', due_date: '', status: 'À faire' });
   const [tasks, setTasks] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -63,6 +64,7 @@ export default function ProjectApp() {
     if (!form.title || !form.due_date) return alert("Titre et date requis");
     await addTask({ ...form, user_id: session.user.id });
     setForm({ title: '', description: '', due_date: '', status: 'À faire' });
+    setShowModal(false);
     fetchTasks();
   };
 
@@ -77,13 +79,37 @@ export default function ProjectApp() {
         <button className="btn btn-outline-danger" onClick={handleLogout}>Se déconnecter</button>
       </nav>
 
-      <div className="card p-3 mb-4">
-        <h5>Ajouter une tâche</h5>
-        <input name="title" className="form-control mb-2" placeholder="Titre" value={form.title} onChange={handleFormChange} />
-        <textarea name="description" className="form-control mb-2" placeholder="Description" value={form.description} onChange={handleFormChange} />
-        <input type="date" name="due_date" className="form-control mb-2" value={form.due_date} onChange={handleFormChange} />
-        <button className="btn btn-primary" onClick={handleFormSubmit}>Ajouter</button>
-      </div>
+      {/* Bouton flottant */}
+      <button
+        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4"
+        style={{ width: '60px', height: '60px', fontSize: '24px' }}
+        onClick={() => setShowModal(true)}
+      >
+        +
+      </button>
+
+      {/* Modal d'ajout */}
+      {showModal && (
+        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Ajouter une tâche</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <input name="title" className="form-control mb-2" placeholder="Titre" value={form.title} onChange={handleFormChange} />
+                <textarea name="description" className="form-control mb-2" placeholder="Description" value={form.description} onChange={handleFormChange} />
+                <input type="date" name="due_date" className="form-control mb-2" value={form.due_date} onChange={handleFormChange} />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Annuler</button>
+                <button className="btn btn-primary" onClick={handleFormSubmit}>Ajouter</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="row">
         {['À faire', 'En cours', 'Terminé'].map(status => (
