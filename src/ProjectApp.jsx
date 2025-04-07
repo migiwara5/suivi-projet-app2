@@ -1,4 +1,4 @@
-// ProjectApp.jsx — composant principal de l'application
+// ProjectApp.jsx — composant principal de l'application 
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
