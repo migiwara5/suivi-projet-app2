@@ -111,12 +111,12 @@ export default function ProjectApp() {
   });
 
   const renderNavbar = () => (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light mb-3 shadow-sm rounded px-3">
-      <span className="navbar-brand">
-        <img src="https://api.iconify.design/fluent-mdl2:task-logo.svg" alt="logo" width="30" className="me-2" />
-        Suivi Projet
-      </span>
-      <div className="d-flex ms-auto">
+<nav className="navbar navbar-expand-lg navbar-light bg-light mb-3 shadow-sm rounded px-3">
+  <span className="navbar-brand d-flex align-items-center">
+    <img src="/logo.png" alt="Logo" width="40" height="40" className="me-2" />
+    Suivi Projet
+  </span>
+  <div className="d-flex ms-auto">
         <input
           className="form-control me-2"
           placeholder="Rechercher une tâche"
