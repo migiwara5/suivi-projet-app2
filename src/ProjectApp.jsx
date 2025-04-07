@@ -7,7 +7,7 @@ import {
   updateStatus,
   deleteTask,
   updateTask,
-} from './utils/tasks';
+} from './utils/tasks.js';
 
 
 const supabase = createClient(
