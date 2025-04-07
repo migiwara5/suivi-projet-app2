@@ -189,7 +189,15 @@ export default function ProjectApp() {
                 <td>
                   <div className="d-flex gap-1">
                     <button className="btn btn-sm btn-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
-                    <button className="btn btn-sm btn-secondary" onClick={() => handleEditTask(task)}>Modifier</button>
+                    <button
+                      className="btn btn-sm btn-secondary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editTaskModal"
+                      onClick={() => handleEditTask(task)}
+                    >
+                    Modifier
+                    </button>
+
                     <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
                     {task.status !== 'Terminé' && (
                       <button className="btn btn-sm btn-success" onClick={() => handleUpdateStatus(task)}>Suivant</button>
@@ -222,6 +230,43 @@ export default function ProjectApp() {
           </div>
         </div>
       </div>
+
+      {/* Modal Modifier Tâche */}
+      <div className="modal fade" id="editTaskModal" tabIndex="-1">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Modifier la tâche</h5>
+              <button className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div className="modal-body">
+              <input
+                placeholder="Titre"
+                className="form-control mb-2"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+              />
+              <textarea
+                placeholder="Description"
+                className="form-control mb-2"
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+              />
+              <input
+                type="date"
+                className="form-control mb-2"
+                value={newTask.due_date}
+                onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+              <button className="btn btn-primary" onClick={handleUpdateTask} data-bs-dismiss="modal">Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Modal Détail */}
       {selectedTask && (
