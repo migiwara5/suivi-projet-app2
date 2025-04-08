@@ -1,23 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
-const logo = "/assets/logo.png";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans overflow-x-hidden">
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white">
         {/* Logo section */}
-        <div className="flex items-center space-x-2 bg-gray-100 px-4 py-1 rounded-xl shadow-sm max-w-fit">
-          <div className="h-10 w-10 rounded-md overflow-hidden">
-            <img
-              src={logo}
-              alt="SuiviProjet Logo"
-              className="h-full w-full object-contain"
-            />
-          </div>
-          <span className="text-sm font-medium text-gray-700">
-            The everything app, for work.
-          </span>
+        <div className="bg-gray-100 px-4 py-1 rounded-xl shadow-sm max-w-fit">
+          <span className="text-lg font-semibold text-gray-800">Project Simple</span>
         </div>
 
         {/* Navigation Buttons */}
