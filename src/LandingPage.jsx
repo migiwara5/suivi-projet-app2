@@ -8,7 +8,7 @@ export default function LandingPage() {
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white">
         {/* Logo section */}
         <div className="flex items-center space-x-2 bg-gray-100 px-4 py-1 rounded-xl shadow-sm">
-          <img src={logo} alt="SuiviProjet Logo" className="w-6 h-6" />
+          <img src={logo} alt="SuiviProjet Logo" className="w-8 h-8 object-contain" />
           <span className="text-sm font-medium text-gray-700">The everything app, for work.</span>
         </div>
 
