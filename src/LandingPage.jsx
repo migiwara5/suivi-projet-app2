@@ -133,15 +133,21 @@ export default function LandingPage() {
         <div className="overflow-x-auto px-6">
           <div className="flex gap-6 justify-center">
             {[ 
-              { text: "“Enfin une app qui ne me perd pas dans 10 menus !”", author: "Lucie, Freelance" },
-              { text: "“Simple, clair, efficace. Je gagne du temps chaque jour.”", author: "Jean, Chef de projet" },
-              { text: "“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !”", author: "Rania, Startup" },
-              { text: "“L’expérience est fluide et agréable, j’adore l’interface.”", author: "Mehdi, Consultant" },
-            ].map(({ text, author }, idx) => (
+              { text: "“Enfin une app qui ne me perd pas dans 10 menus !”", author: "Lucie", role: "Freelance", image: "/assets/Lucie.png" },
+              { text: "“Simple, clair, efficace. Je gagne du temps chaque jour.”", author: "Jean", role: "Chef de projet", image: "/assets/Jean.png" },
+              { text: "“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !”", author: "Rania", role: "Startup", image: "/assets/Rania.png" },
+              { text: "“L’expérience est fluide et agréable, j’adore l’interface.”", author: "Mehdi", role: "Consultant", image: "/assets/Mehdi.png" },
+            ].map(({ text, author, role, image }, idx) => (
               <div key={idx} className="w-72 shrink-0 p-4 border rounded-xl bg-white shadow text-left">
-                <div className="text-yellow-400 mb-2">★★★★★</div>
-                <p className="italic mb-2">{text}</p>
-                <p className="text-sm text-gray-600">— {author}</p>
+                <div className="flex items-center gap-3 mb-3">
+                  <img src={image} alt={author} className="w-10 h-10 rounded-full object-cover border" />
+                  <div>
+                  <p className="font-semibold text-gray-800">{author}</p>
+                  <p className="text-xs text-gray-500">{role}</p>
+                </div>
+            </div>
+        <div className="text-yellow-400 mb-2">★★★★★</div>
+          <p className="italic mb-2">{text}</p>
               </div>
             ))}
           </div>
