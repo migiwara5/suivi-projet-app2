@@ -39,15 +39,32 @@ export default function LandingPage() {
     }
   };
 
+  const validatePassword = (password) => {
+    const length = password.length >= 12;
+    const upper = /[A-Z]/.test(password);
+    const special = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const number = /[0-9]/.test(password);
+    return { length, upper, special, number };
+  };
+
+  const passwordStrength = (password) => {
+    const { length, upper, special, number } = validatePassword(password);
+    const score = [length, upper, special, number].filter(Boolean).length;
+    if (score === 4) return { text: "Fort", color: "bg-green-500" };
+    if (score >= 2) return { text: "Moyen", color: "bg-yellow-400" };
+    return { text: "Faible", color: "bg-red-500" };
+  };
+
+  const passwordCheck = validatePassword(signupPassword);
+  const strength = passwordStrength(signupPassword);
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans overflow-x-hidden">
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white">
-        {/* Logo section */}
         <div className="bg-gray-100 px-4 py-1 rounded-xl shadow-sm max-w-fit">
           <span className="text-lg font-semibold text-gray-800">Project Simple</span>
         </div>
 
-        {/* Navigation Buttons */}
         <div className="flex items-center space-x-4">
           <button
             className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
@@ -72,64 +89,29 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Contact Modal */}
       {showContact && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Contactez-nous</h2>
             <form action="https://formsubmit.co/mathieu.baudesson@gmail.com" method="POST">
-              <input
-                type="text"
-                name="name"
-                placeholder="Votre nom"
-                required
-                className="w-full mb-3 p-2 border rounded"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Votre email"
-                required
-                className="w-full mb-3 p-2 border rounded"
-              />
-              <textarea
-                name="message"
-                placeholder="Votre message"
-                required
-                className="w-full mb-3 p-2 border rounded"
-              ></textarea>
+              <input type="text" name="name" placeholder="Votre nom" required className="w-full mb-3 p-2 border rounded" />
+              <input type="email" name="email" placeholder="Votre email" required className="w-full mb-3 p-2 border rounded" />
+              <textarea name="message" placeholder="Votre message" required className="w-full mb-3 p-2 border rounded"></textarea>
               <div className="flex justify-end space-x-2">
-                <button type="button" onClick={() => setShowContact(false)} className="text-sm text-gray-500">
-                  Annuler
-                </button>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                  Envoyer
-                </button>
+                <button type="button" onClick={() => setShowContact(false)} className="text-sm text-gray-500">Annuler</button>
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Envoyer</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Login Modal */}
       {showLogin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-sm shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Connexion</h2>
-            <input
-              type="email"
-              placeholder="Email"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
-              className="w-full mb-3 p-2 border rounded"
-            />
+            <input type="email" placeholder="Email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} className="w-full mb-3 p-2 border rounded" />
+            <input type="password" placeholder="Mot de passe" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full mb-3 p-2 border rounded" />
             <div className="flex justify-end space-x-2">
               <button onClick={() => setShowLogin(false)} className="text-sm text-gray-500">Annuler</button>
               <button onClick={handleLogin} className="bg-blue-600 text-white px-4 py-2 rounded">Se connecter</button>
@@ -138,25 +120,21 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Signup Modal */}
       {showSignup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-sm shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Créer un compte</h2>
-            <input
-              type="email"
-              placeholder="Email"
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={signupPassword}
-              onChange={(e) => setSignupPassword(e.target.value)}
-              className="w-full mb-3 p-2 border rounded"
-            />
+            <input type="email" placeholder="Email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="w-full mb-3 p-2 border rounded" />
+            <input type="password" placeholder="Mot de passe" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} className="w-full mb-1 p-2 border rounded" />
+            <div className="h-2 w-full mb-2 rounded" style={{ backgroundColor: '#e5e7eb' }}>
+              <div className={`h-2 rounded ${strength.color}`} style={{ width: `${(Object.values(passwordCheck).filter(Boolean).length / 4) * 100}%` }}></div>
+            </div>
+            <ul className="text-sm text-gray-700 space-y-1 mb-3">
+              <li className={passwordCheck.length ? "text-green-600" : "text-red-500"}>✔️ 12 caractères minimum</li>
+              <li className={passwordCheck.upper ? "text-green-600" : "text-red-500"}>✔️ Une majuscule</li>
+              <li className={passwordCheck.special ? "text-green-600" : "text-red-500"}>✔️ Un caractère spécial</li>
+              <li className={passwordCheck.number ? "text-green-600" : "text-red-500"}>✔️ Un chiffre</li>
+            </ul>
             <div className="flex justify-end space-x-2">
               <button onClick={() => setShowSignup(false)} className="text-sm text-gray-500">Annuler</button>
               <button onClick={handleSignup} className="bg-purple-600 text-white px-4 py-2 rounded">S'inscrire</button>
