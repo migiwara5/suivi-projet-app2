@@ -5,99 +5,117 @@ export default function LandingPage() {
   const reviews = [
     {
       name: "Alice",
-      review: "SuiviProjet a transformé ma façon de gérer les tâches. Simple, rapide, efficace !",
+      review:
+        "SuiviProjet a transformé ma façon de gérer les tâches. Simple, rapide, efficace !",
     },
     {
       name: "Jean",
-      review: "Une interface claire et un vrai gain de temps pour mon équipe !",
+      review:
+        "Une interface claire et un vrai gain de temps pour mon équipe !",
     },
     {
       name: "Leila",
-      review: "Enfin un outil de gestion sans prise de tête. Je recommande vivement !",
+      review:
+        "Enfin un outil de gestion sans prise de tête. Je recommande vivement !",
     },
   ];
 
   return (
-    <div className="text-white font-sans">
-      {/* HERO SECTION */}
-      <section
-        className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center text-center relative"
-        style={{ backgroundImage: "url('/assets/hero.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div className="relative z-10 px-6">
-          <motion.h1
-            className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight"
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            Gérez vos projets. Simplement.
-          </motion.h1>
-          <motion.p
-            className="text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            L’app de gestion de tâches ultra intuitive, conçue pour les personnes qui veulent aller droit au but.
-          </motion.p>
-          <motion.a
-            href="/app"
-            className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 transition shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Lancer l’application
-          </motion.a>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 text-white font-sans">
+      <header className="flex items-center justify-between px-8 py-6 shadow-md bg-opacity-80 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-yellow-400" />
+          <h1 className="text-xl font-bold tracking-wide">SuiviProjet</h1>
         </div>
-      </section>
+        <a
+          href="/app"
+          className="bg-white text-blue-900 px-5 py-2 rounded-full font-semibold hover:bg-blue-200 transition"
+        >
+          Accéder à l'app
+        </a>
+      </header>
 
-      {/* FONCTIONNALITÉS */}
-      <section className="bg-white text-gray-900 py-20 px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8">Pourquoi choisir SuiviProjet ?</h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto text-left">
-          <div className="bg-gray-100 rounded-xl p-6 shadow-md">
-            <h3 className="text-xl font-bold mb-2">Ultra simple</h3>
-            <p>Aucune complexité inutile. Vous ajoutez, modifiez et suivez vos tâches en 1 clic.</p>
+      <main className="px-8 py-20 text-center max-w-4xl mx-auto">
+        <motion.h2
+          className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Gagnez en clarté. Simplifiez la gestion de vos tâches.
+        </motion.h2>
+
+        <motion.p
+          className="text-xl md:text-2xl text-blue-100 mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
+          L’outil tout-en-un pour suivre l’avancement de vos projets, collaborer efficacement et rester concentré sur l’essentiel.
+        </motion.p>
+
+        <motion.a
+          href="/app"
+          className="inline-block bg-yellow-400 text-blue-900 text-xl font-bold px-8 py-4 rounded-full shadow-lg hover:bg-yellow-300 transition mb-16"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Commencer maintenant
+        </motion.a>
+
+        <motion.section
+          className="grid md:grid-cols-2 gap-10 text-left bg-white text-gray-900 rounded-2xl p-10 shadow-2xl"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <div>
+            <h3 className="text-3xl font-bold mb-4">Pourquoi choisir SuiviProjet ?</h3>
+            <ul className="space-y-3 text-lg">
+              <li><strong>Simplicité :</strong> une interface claire, sans surcharge.</li>
+              <li><strong>Rapidité :</strong> visualisez et mettez à jour vos tâches en quelques clics.</li>
+              <li><strong>Commentaires :</strong> collaborez facilement sur chaque tâche.</li>
+              <li><strong>Organisation :</strong> tout est trié par statut et échéance.</li>
+              <li><strong>Accessibilité :</strong> gratuit, en ligne et disponible partout.</li>
+            </ul>
           </div>
-          <div className="bg-gray-100 rounded-xl p-6 shadow-md">
-            <h3 className="text-xl font-bold mb-2">100% accessible</h3>
-            <p>Gratuit, en ligne, fonctionne sur tous vos appareils sans téléchargement.</p>
+          <div className="flex items-center justify-center">
+            <div className="w-full h-64 bg-gradient-to-br from-yellow-300 to-pink-400 rounded-xl shadow-lg" />
           </div>
-          <div className="bg-gray-100 rounded-xl p-6 shadow-md">
-            <h3 className="text-xl font-bold mb-2">Collaboratif</h3>
-            <p>Ajoutez des commentaires, discutez avec votre équipe, restez alignés.</p>
+        </motion.section>
+
+        <motion.section
+          className="mt-20 bg-indigo-900 bg-opacity-50 rounded-xl py-10 px-6"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+        >
+          <h4 className="text-2xl font-bold mb-6">Ce qu’en disent nos utilisateurs :</h4>
+          <div className="grid md:grid-cols-3 gap-6">
+            {reviews.map((r, i) => (
+              <div
+                key={i}
+                className="bg-white text-gray-900 rounded-lg p-4 shadow-md text-left"
+              >
+                <p className="italic">“{r.review}”</p>
+                <p className="mt-2 text-right font-semibold">&ndash; {r.name}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+        </motion.section>
 
-      {/* APERÇU DE L’APP */}
-      <section className="bg-gradient-to-br from-indigo-900 to-purple-900 py-20 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-10">Un aperçu de votre futur outil préféré</h2>
-        <img
-          src="/assets/illustration.png"
-          alt="Aperçu SuiviProjet"
-          className="rounded-xl shadow-xl max-w-4xl mx-auto"
-        />
-      </section>
+        <motion.p
+          className="mt-16 text-blue-200 italic text-lg"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.8 }}
+        >
+          Vous avez des projets, nous avons l’outil pour les réaliser.
+        </motion.p>
+      </main>
 
-      {/* AVIS */}
-      <section className="bg-gray-100 py-16 text-gray-900 px-6">
-        <h3 className="text-2xl font-bold mb-8 text-center">Ce qu’en pensent nos utilisateurs :</h3>
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {reviews.map((r, i) => (
-            <div key={i} className="bg-white rounded-lg p-4 shadow-md">
-              <p className="italic text-gray-800">“{r.review}”</p>
-              <p className="mt-2 text-right font-semibold text-indigo-700">– {r.name}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-gray-900 text-gray-300 text-center py-6 text-sm">
-        &copy; {new Date().getFullYear()} SuiviProjet. Créé avec ❤️ pour les gens efficaces.
+      <footer className="text-center py-10 text-blue-200 text-sm">
+        &copy; {new Date().getFullYear()} SuiviProjet. Créé avec passion pour les créateurs de demain.
       </footer>
     </div>
   );
