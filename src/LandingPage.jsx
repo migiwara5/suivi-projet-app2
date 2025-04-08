@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
+import screenshot from "../public/assets/app-screenshot.png";
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -91,6 +92,23 @@ export default function LandingPage() {
         </div>
       </header>
 
+      {/* Hero Section */}
+      <section className="flex flex-col md:flex-row items-center justify-between px-8 py-20 bg-gradient-to-r from-fuchsia-50 to-blue-50">
+        <div className="md:w-1/2 mb-10 md:mb-0">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">L'outil de suivi de tâches le plus simple du marché</h1>
+          <p className="text-lg text-gray-700 mb-6">
+            Vous trouvez les outils actuels trop compliqués ? Project Simple est fait pour vous. Minimaliste, intuitif, et efficace, il s'adresse à celles et ceux qui veulent aller à l'essentiel.
+          </p>
+          <button className="bg-purple-600 text-white px-6 py-3 rounded-full shadow hover:bg-purple-700 transition">
+            Commencer
+          </button>
+        </div>
+        <div className="md:w-1/2">
+          <img src="/assets/app-screenshot.png" alt="Aperçu de l'application" className="rounded-xl shadow-xl w-full" />
+        </div>
+      </section>
+
+      {/* Modals */}
       {showContact && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
