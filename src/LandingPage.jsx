@@ -9,12 +9,13 @@ export default function LandingPage() {
         {/* Logo section */}
         <div className="flex items-center space-x-2 bg-gray-100 px-4 py-1 rounded-xl shadow-sm">
           <img
-  src={logo}
-  alt="SuiviProjet Logo"
-  className="h-8 w-auto max-w-[100px] object-contain"
-/>
-
-          <span className="text-sm font-medium text-gray-700">The everything app, for work.</span>
+            src={logo}
+            alt="SuiviProjet Logo"
+            className="h-8 w-auto max-w-[100px] object-contain"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            The everything app, for work.
+          </span>
         </div>
 
         {/* Navigation Buttons */}
