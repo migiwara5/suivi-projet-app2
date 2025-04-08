@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 const supabase = createClient(
   "https://uhcrmatnvjvoeknfdmat.supabase.co",
@@ -14,6 +15,7 @@ export default function LandingPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -22,8 +24,8 @@ export default function LandingPage() {
     });
     if (error) alert("Erreur de connexion : " + error.message);
     else {
-      alert("Connecté !");
       setShowLogin(false);
+      navigate("/app");
     }
   };
 
@@ -126,7 +128,7 @@ export default function LandingPage() {
             <h2 className="text-xl font-semibold mb-4">Créer un compte</h2>
             <input type="email" placeholder="Email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="w-full mb-3 p-2 border rounded" />
             <input type="password" placeholder="Mot de passe" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} className="w-full mb-1 p-2 border rounded" />
-            <div className="h-2 w-full mb-2 rounded" style={{ backgroundColor: '#e5e7eb' }}>
+            <div className="h-2 w-full mb-2 rounded bg-gray-200">
               <div className={`h-2 rounded ${strength.color}`} style={{ width: `${(Object.values(passwordCheck).filter(Boolean).length / 4) * 100}%` }}></div>
             </div>
             <ul className="text-sm text-gray-700 space-y-1 mb-3">
