@@ -97,7 +97,7 @@ export default function LandingPage() {
           <p className="text-lg text-gray-700 mb-6">
             Vous trouvez les outils actuels trop compliqués ? Project Simple est fait pour vous. Minimaliste, intuitif, et efficace, il s'adresse à celles et ceux qui veulent aller à l'essentiel.
           </p>
-          <button className="bg-purple-600 text-white px-6 py-3 rounded-full shadow hover:bg-purple-700 transition">
+          <button onClick={() => setShowSignup(true)} className="bg-purple-600 text-white px-6 py-3 rounded-full shadow hover:bg-purple-700 transition">
             Commencer
           </button>
         </div>
@@ -130,15 +130,27 @@ export default function LandingPage() {
 
       <section className="bg-gradient-to-r from-blue-50 to-fuchsia-50 py-12">
         <h2 className="text-3xl font-bold text-center mb-8">Ils nous font confiance</h2>
-        <div className="overflow-hidden relative h-24">
-          <div className="animate-marquee whitespace-nowrap text-center text-lg text-gray-800">
-            <span className="mx-8">“Enfin une app qui ne me perd pas dans 10 menus !” — Lucie, Freelance</span>
-            <span className="mx-8">“Simple, clair, efficace. Je gagne du temps chaque jour.” — Jean, Chef de projet</span>
-            <span className="mx-8">“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !” — Rania, Startup</span>
-            <span className="mx-8">“L’expérience est fluide et agréable, j’adore l’interface.” — Mehdi, Consultant</span>
+        <div className="overflow-hidden relative h-32">
+          <div className="animate-marquee whitespace-nowrap text-center text-lg text-gray-800 flex space-x-12 px-4">
+            {[
+              { text: "“Enfin une app qui ne me perd pas dans 10 menus !”", author: "Lucie, Freelance" },
+              { text: "“Simple, clair, efficace. Je gagne du temps chaque jour.”", author: "Jean, Chef de projet" },
+              { text: "“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !”", author: "Rania, Startup" },
+              { text: "“L’expérience est fluide et agréable, j’adore l’interface.”", author: "Mehdi, Consultant" },
+            ].map(({ text, author }, idx) => (
+              <div key={idx} className="min-w-[300px] max-w-sm p-4 border rounded-xl bg-white shadow text-left">
+                <div className="text-yellow-400 mb-2">★★★★★</div>
+                <p className="italic mb-2">{text}</p>
+                <p className="text-sm text-gray-600">— {author}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
+      <footer className="bg-gray-100 text-center text-sm py-6 mt-10 border-t">
+        &copy; {new Date().getFullYear()} Project Simple. Tous droits réservés.
+      </footer>
 
       {/* Existing Modals */}
       {showContact && (
