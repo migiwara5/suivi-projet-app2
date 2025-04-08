@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import screenshot from "../public/assets/app-screenshot.png";
@@ -67,7 +67,6 @@ export default function LandingPage() {
         <div className="bg-gray-100 px-4 py-1 rounded-xl shadow-sm max-w-fit">
           <span className="text-lg font-semibold text-gray-800">Project Simple</span>
         </div>
-
         <div className="flex items-center space-x-4">
           <button
             className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
@@ -92,7 +91,6 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center justify-between px-8 py-20 bg-gradient-to-r from-fuchsia-50 to-blue-50">
         <div className="md:w-1/2 mb-10 md:mb-0">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">L'outil de suivi de tâches le plus simple du marché</h1>
@@ -108,7 +106,41 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Modals */}
+      <section className="bg-white py-12 px-8">
+        <h2 className="text-3xl font-bold text-center mb-10">Pourquoi choisir Project Simple ?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          <div className="p-4 border rounded-lg shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Ultra intuitif</h3>
+            <p className="text-gray-600">Pas besoin de formation. L’interface est pensée pour aller droit au but.</p>
+          </div>
+          <div className="p-4 border rounded-lg shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Focus sur l’essentiel</h3>
+            <p className="text-gray-600">Gérez vos tâches et projets sans distraction ni surcharge fonctionnelle.</p>
+          </div>
+          <div className="p-4 border rounded-lg shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Collaboration facile</h3>
+            <p className="text-gray-600">Invitez votre équipe, assignez des tâches, et échangez simplement.</p>
+          </div>
+          <div className="p-4 border rounded-lg shadow-sm">
+            <h3 className="font-semibold text-lg mb-2">Gratuit à vie</h3>
+            <p className="text-gray-600">Lancez-vous sans engagement. Project Simple reste gratuit aussi longtemps que vous le souhaitez.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-gradient-to-r from-blue-50 to-fuchsia-50 py-12">
+        <h2 className="text-3xl font-bold text-center mb-8">Ils nous font confiance</h2>
+        <div className="overflow-hidden relative h-24">
+          <div className="animate-marquee whitespace-nowrap text-center text-lg text-gray-800">
+            <span className="mx-8">“Enfin une app qui ne me perd pas dans 10 menus !” — Lucie, Freelance</span>
+            <span className="mx-8">“Simple, clair, efficace. Je gagne du temps chaque jour.” — Jean, Chef de projet</span>
+            <span className="mx-8">“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !” — Rania, Startup</span>
+            <span className="mx-8">“L’expérience est fluide et agréable, j’adore l’interface.” — Mehdi, Consultant</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Existing Modals */}
       {showContact && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
