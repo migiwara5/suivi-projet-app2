@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import logo from "../logo.png"; // Assurez-vous que le chemin est correct
+const logo = "/assets/logo.png";
+
 
 export default function LandingPage() {
   const reviews = [
