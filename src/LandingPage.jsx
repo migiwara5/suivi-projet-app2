@@ -130,15 +130,15 @@ export default function LandingPage() {
 
       <section className="bg-gradient-to-r from-blue-50 to-fuchsia-50 py-12">
         <h2 className="text-3xl font-bold text-center mb-8">Ils nous font confiance</h2>
-        <div className="overflow-hidden relative h-32">
-          <div className="animate-marquee whitespace-nowrap text-center text-lg text-gray-800 flex space-x-12 px-4">
-            {[
+        <div className="overflow-x-auto px-6">
+          <div className="flex gap-6 justify-center">
+            {[ 
               { text: "“Enfin une app qui ne me perd pas dans 10 menus !”", author: "Lucie, Freelance" },
               { text: "“Simple, clair, efficace. Je gagne du temps chaque jour.”", author: "Jean, Chef de projet" },
               { text: "“Idéal pour les équipes réduites. Tout le monde a adopté Project Simple !”", author: "Rania, Startup" },
               { text: "“L’expérience est fluide et agréable, j’adore l’interface.”", author: "Mehdi, Consultant" },
             ].map(({ text, author }, idx) => (
-              <div key={idx} className="min-w-[300px] max-w-sm p-4 border rounded-xl bg-white shadow text-left">
+              <div key={idx} className="w-72 shrink-0 p-4 border rounded-xl bg-white shadow text-left">
                 <div className="text-yellow-400 mb-2">★★★★★</div>
                 <p className="italic mb-2">{text}</p>
                 <p className="text-sm text-gray-600">— {author}</p>
