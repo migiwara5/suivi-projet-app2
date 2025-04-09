@@ -64,12 +64,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans overflow-x-hidden">
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white">
-        <div className="bg-gray-100 px-4 py-1 rounded-xl shadow-sm max-w-fit">
+      <div className="bg-white px-3 py-1 rounded-xl shadow-sm">
   <img
     src="/assets/logo_light.png"
     alt="Logo Project Simple"
-    className="h-10 w-auto object-contain"
+    className="h-8 w-auto object-contain"
   />
+</div>
+
 </div>
 
         <div className="flex items-center space-x-4">
