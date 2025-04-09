@@ -72,7 +72,6 @@ export default function LandingPage() {
   />
 </div>
 
-</div>
 
         <div className="flex items-center space-x-4">
           <button
