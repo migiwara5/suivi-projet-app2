@@ -108,39 +108,64 @@ export default function ProjectApp() {
     return matchesSearch && matchesDate;
   });
 
-  const renderNavbar = () => (
-    <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white mb-4">
-      <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-1 rounded-xl shadow-sm max-w-fit">
-        Project Simple
-      </div>
-      <div className="flex gap-2">
-        <input
-          className="border border-gray-300 rounded-md px-3 py-2"
-          placeholder="Rechercher une tâche"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <input
-          type="date"
-          className="border border-gray-300 rounded-md px-3 py-2"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-        />
-        <button
-          className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
-          onClick={() => {
-            setSearchTerm('');
-            setFilterDate('');
-          }}
-        >
-          Réinitialiser
+const renderNavbar = () => (
+  <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white mb-6">
+    <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-2 rounded-xl shadow-sm">
+      Project Simple
+    </div>
+    <div className="flex gap-3 items-center">
+      <input
+        className="border border-gray-300 rounded-md px-3 py-2"
+        placeholder="Rechercher une tâche"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <input
+        type="date"
+        className="border border-gray-300 rounded-md px-3 py-2"
+        value={filterDate}
+        onChange={(e) => setFilterDate(e.target.value)}
+      />
+      <button
+        className="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded-xl hover:bg-gray-200 transition"
+        onClick={() => {
+          setSearchTerm('');
+          setFilterDate('');
+        }}
+      >
+        Réinitialiser
+      </button>
+
+      {/* Profil + Logout */}
+      <div className="relative group">
+        <button className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white font-bold flex items-center justify-center">
+          {session?.user?.email?.[0]?.toUpperCase() || "U"}
         </button>
+        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <div className="px-4 py-2 text-sm text-gray-600 border-b">
+            {session?.user.email}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50"
+          >
+            Se déconnecter
+          </button>
+        </div>
       </div>
-    </nav>
-  );
+    </div>
+  </nav>
+);
+
 
   if (session === undefined) return <div className="text-center py-10">Chargement...</div>;
   if (!session) return <div className="text-center py-10">Non connecté</div>;
+
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+  setSession(null);
+};
+
 
   return (
     <div className="p-6 font-sans text-gray-900 bg-white min-h-screen">
