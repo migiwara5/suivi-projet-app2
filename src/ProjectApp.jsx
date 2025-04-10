@@ -25,6 +25,8 @@ export default function ProjectApp() {
   const [comments, setComments] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [activeTab, setActiveTab] = useState('Accueil');
+  const [showMenu, setShowMenu] = useState(false);
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
