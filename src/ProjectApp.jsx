@@ -167,6 +167,7 @@ export default function ProjectApp() {
         >
           + Nouvelle tâche
         </button>
+      </div>
 
       {activeTab === 'Accueil' ? (
         <div className="row">
