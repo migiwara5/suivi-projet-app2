@@ -1,5 +1,3 @@
-// src/ProjectApp.jsx
-
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -111,48 +109,64 @@ export default function ProjectApp() {
   });
 
   const renderNavbar = () => (
-<nav className="navbar navbar-expand-lg navbar-light bg-light mb-3 shadow-sm rounded px-3">
-  <span className="navbar-brand d-flex align-items-center">
-    <img src="/logo.png" alt="Logo" width="40" height="40" className="me-2" />
-    Suivi Projet
-  </span>
-  <div className="d-flex ms-auto">
+    <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white mb-4">
+      <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-1 rounded-xl shadow-sm max-w-fit">
+        Project Simple
+      </div>
+      <div className="flex gap-2">
         <input
-          className="form-control me-2"
+          className="border border-gray-300 rounded-md px-3 py-2"
           placeholder="Rechercher une tâche"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <input
           type="date"
-          className="form-control me-2"
+          className="border border-gray-300 rounded-md px-3 py-2"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
         />
-        <button className="btn btn-outline-secondary" onClick={() => { setSearchTerm(''); setFilterDate(''); }}>Réinitialiser</button>
+        <button
+          className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
+          onClick={() => {
+            setSearchTerm('');
+            setFilterDate('');
+          }}
+        >
+          Réinitialiser
+        </button>
       </div>
     </nav>
   );
 
-  if (session === undefined) return <div>Chargement...</div>;
-  if (!session) return <div>Non connecté</div>;
+  if (session === undefined) return <div className="text-center py-10">Chargement...</div>;
+  if (!session) return <div className="text-center py-10">Non connecté</div>;
 
   return (
-    <div className="container mt-2">
+    <div className="p-6 font-sans text-gray-900 bg-white min-h-screen">
       {renderNavbar()}
-      <h5 className="text-muted mb-3">Connecté en tant que {session.user.email}</h5>
+      <h5 className="text-sm text-gray-500 mb-3">Connecté en tant que {session.user.email}</h5>
 
-      <ul className="nav nav-tabs mb-3">
+      <div className="flex gap-4 mb-4">
         {['Accueil', 'À faire', 'En cours', 'Terminé'].map(tab => (
-          <li className="nav-item" key={tab}>
-            <button className={`nav-link ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
-          </li>
+          <button
+            key={tab}
+            className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${activeTab === tab ? 'bg-purple-600 text-white' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
         ))}
-      </ul>
-
-      <div className="d-flex justify-content-end mb-3">
-        <button className="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Nouvelle tâche</button>
       </div>
+
+      <div className="flex justify-end mb-3">
+        <button
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow"
+          data-bs-toggle="modal"
+          data-bs-target="#addTaskModal"
+        >
+          + Nouvelle tâche
+        </button>
 
       {activeTab === 'Accueil' ? (
         <div className="row">
