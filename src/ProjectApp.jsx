@@ -170,9 +170,10 @@ const renderNavbar = () => (
   if (!session) return <div className="text-center py-10">Non connecté</div>;
 
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-  setSession(null);
-};
+    await supabase.auth.signOut();
+    setSession(null);
+    window.location.href = "/"; // redirige vers la landing page
+  };
 
 
   return (
