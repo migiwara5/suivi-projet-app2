@@ -169,61 +169,70 @@ export default function ProjectApp() {
         </button>
       </div>
 
-      {activeTab === 'Accueil' ? (
-        <div className="row">
-          {['À faire', 'En cours', 'Terminé'].map(status => (
-            <div className="col-md-4" key={status}>
-              <h4>{status}</h4>
-              <ul className="list-group">
-                {filteredTasks.filter(t => t.status === status).map(task => (
-                  <li className="list-group-item d-flex justify-content-between align-items-center" key={task.id}>
-                    {task.title}
-                    <button className="btn btn-sm btn-outline-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détail</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+     {activeTab === 'Accueil' ? (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {['À faire', 'En cours', 'Terminé'].map(status => (
+      <div key={status} className="bg-gray-50 border rounded-lg shadow-sm p-4">
+        <h4 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">{status}</h4>
+        <ul className="space-y-2">
+          {filteredTasks.filter(t => t.status === status).map(task => (
+            <li key={task.id} className="flex justify-between items-center bg-white p-3 rounded-md shadow hover:bg-gray-100 transition">
+              <span className="font-medium text-sm text-gray-800">{task.title}</span>
+              <button
+                className="text-blue-600 text-xs hover:underline"
+                onClick={() => { setSelectedTask(task); fetchComments(task.id); }}
+              >Détail</button>
+            </li>
           ))}
-        </div>
-      ) : (
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTasks.filter(t => t.status === activeTab).map(task => (
-              <tr key={task.id}>
-                <td>{task.title}</td>
-                <td>{task.description}</td>
-                <td>{task.due_date}</td>
-                <td>
-                  <div className="d-flex gap-1">
-                    <button className="btn btn-sm btn-info" onClick={() => { setSelectedTask(task); fetchComments(task.id); }}>Détails</button>
-                    <button
-                      className="btn btn-sm btn-secondary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editTaskModal"
-                      onClick={() => handleEditTask(task)}
-                    >
-                    Modifier
-                    </button>
-
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-                    {task.status !== 'Terminé' && (
-                      <button className="btn btn-sm btn-success" onClick={() => handleUpdateStatus(task)}>Suivant</button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        </ul>
+      </div>
+    ))}
+  </div>
+) : (
+  <div className="overflow-auto">
+    <table className="min-w-full bg-white shadow rounded-lg">
+      <thead>
+        <tr className="bg-gray-100 text-left text-gray-600 uppercase text-sm">
+          <th className="py-3 px-4">Titre</th>
+          <th className="py-3 px-4">Description</th>
+          <th className="py-3 px-4">Date</th>
+          <th className="py-3 px-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredTasks.filter(t => t.status === activeTab).map(task => (
+          <tr key={task.id} className="hover:bg-gray-50 transition">
+            <td className="py-2 px-4">{task.title}</td>
+            <td className="py-2 px-4">{task.description}</td>
+            <td className="py-2 px-4">{task.due_date}</td>
+            <td className="py-2 px-4">
+              <div className="flex gap-2">
+                <button
+                  className="text-blue-600 hover:underline text-sm"
+                  onClick={() => { setSelectedTask(task); fetchComments(task.id); }}
+                >Détails</button>
+                <button
+                  className="text-yellow-600 hover:underline text-sm"
+                  onClick={() => handleEditTask(task)}
+                >Modifier</button>
+                <button
+                  className="text-red-600 hover:underline text-sm"
+                  onClick={() => handleDeleteTask(task.id)}
+                >Supprimer</button>
+                {task.status !== 'Terminé' && (
+                  <button
+                    className="text-green-600 hover:underline text-sm"
+                    onClick={() => handleUpdateStatus(task)}
+                  >Suivant</button>
+                )}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
       {/* Modal Ajouter Tâche */}
       <div className="modal fade" id="addTaskModal" tabIndex="-1">
