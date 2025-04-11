@@ -290,7 +290,7 @@ const renderNavbar = () => (
       </button>
     </div>
 
-    <div className="flex-1 p-6">  
+    <div className="flex-1 px-4 md:px-12 py-6 max-w-[1400px] mx-auto">  
       {renderNavbar()}
 
       <div className="flex gap-4 mb-4">
