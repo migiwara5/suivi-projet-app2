@@ -324,19 +324,27 @@ const renderNavbar = () => (
       </div>
 </div>
 
-     {activeTab === 'Accueil' ? (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+{activeTab === 'Accueil' ? (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
     {['À faire', 'En cours', 'Terminé'].map(status => (
-      <div key={status} className="bg-gray-50 border rounded-lg shadow-sm p-4">
+      <div key={status} className="bg-gray-50 border rounded-lg shadow-sm p-4 min-h-[300px]">
         <h4 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">{status}</h4>
         <ul className="space-y-2">
           {filteredTasks.filter(t => t.status === status).map(task => (
-            <li key={task.id} className="flex justify-between items-center bg-white p-3 rounded-md shadow hover:bg-gray-100 transition">
+            <li
+              key={task.id}
+              className="flex justify-between items-center bg-white p-3 rounded-md shadow hover:bg-gray-100 transition"
+            >
               <span className="font-medium text-sm text-gray-800">{task.title}</span>
               <button
                 className="text-blue-600 text-xs hover:underline"
-                onClick={() => { setSelectedTask(task); fetchComments(task.id); }}
-              >Détail</button>
+                onClick={() => {
+                  setSelectedTask(task);
+                  fetchComments(task.id);
+                }}
+              >
+                Détail
+              </button>
             </li>
           ))}
         </ul>
