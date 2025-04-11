@@ -177,29 +177,6 @@ const renderNavbar = () => (
     <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-2 rounded-xl shadow-sm">
       Project Simple
     </div>
-
-    <div className="flex items-center gap-3 ml-4">
-      <select
-        className="border border-gray-300 rounded-md px-3 py-2"
-        value={activeProjectId || ''}
-        onChange={(e) => setActiveProjectId(e.target.value)}
-      >
-        {projects.map((project) => (
-          <option key={project.id} value={project.id}>
-            {project.name}
-          </option>
-        ))}
-      </select>
-    
-      <button
-        className="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-        data-bs-toggle="modal"
-        data-bs-target="#createProjectModal"
-      >
-        + Nouveau projet
-      </button>
-    </div>
-
     
     <div className="flex gap-3 items-center">
       {/* Profil + Logout */}
