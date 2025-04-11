@@ -222,6 +222,15 @@ const renderNavbar = () => (
 
     <div className="w-64 bg-gray-100 p-4 shadow-md">
       <h3 className="text-lg font-semibold mb-4">Mes classeurs</h3>
+
+      <button
+        className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
+        data-bs-toggle="modal"
+        data-bs-target="#createProjectModal"
+      >
+        + Nouveau classeur
+      </button>
+      
       <ul className="space-y-2">
         {projects.map((project) => (
           <li
@@ -236,13 +245,6 @@ const renderNavbar = () => (
         ))}
       </ul>
     
-      <button
-        className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
-        data-bs-toggle="modal"
-        data-bs-target="#createProjectModal"
-      >
-        + Nouveau classeur
-      </button>
     </div>
 
     <div className="flex-1 px-4 md:px-12 py-6 max-w-[1400px] mx-auto">  
