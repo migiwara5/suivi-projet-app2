@@ -263,7 +263,7 @@ const renderNavbar = () => (
 
 
   return (
-    <div className="flex min-h-screen font-sans text-gray-900 bg-white">
+  <div className="flex min-h-screen font-sans text-gray-900 bg-white">
 
     <div className="w-64 bg-gray-100 p-4 shadow-md">
       <h3 className="text-lg font-semibold mb-4">Mes classeurs</h3>
@@ -322,7 +322,7 @@ const renderNavbar = () => (
           + Nouvelle tâche
         </button>
       </div>
-</div>
+
 
 {activeTab === 'Accueil' ? (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -453,7 +453,7 @@ const renderNavbar = () => (
           </div>
         </div>
       </div>
-
+</div>
 
       {/* Modal Détail */}
       {selectedTask && (
