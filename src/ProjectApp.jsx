@@ -221,7 +221,7 @@ const renderNavbar = () => (
   <div className="flex min-h-screen font-sans text-gray-900 bg-white">
 
     <div className="w-64 bg-gray-100 p-4 shadow-md">
-      <h3 className="text-lg font-semibold mb-4">Mes classeurs</h3>
+      <h3 className="text-lg font-semibold mb-2">Mes classeurs</h3>
 
       <button
         className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
