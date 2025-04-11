@@ -123,7 +123,11 @@ const handleCreateProject = async () => {
 
   const handleAddTask = async () => {
     try {
-      await addTask({ ...newTask, user_id: session.user.id });
+      await addTask({
+        ...newTask,
+        user_id: session.user.id,
+        project_id: activeProjectId,
+      });
       setNewTask({ title: '', description: '', due_date: '', status: 'À faire' });
       fetchTasks();
     } catch (e) {
