@@ -47,6 +47,12 @@ export default function ProjectApp() {
     }
   }, [session]);
 
+  useEffect(() => {
+  if (session && activeProjectId) {
+    fetchTasks();
+  }
+}, [activeProjectId]);
+
 
   const fetchTasks = async () => {
     if (!activeProjectId) return;
