@@ -45,8 +45,10 @@ export default function ProjectApp() {
   const fetchTasks = async () => {
     const { data, error } = await supabase.from('tasks').select('*').eq('user_id', session.user.id);
     if (error) console.error(error);
-    else setTasks(data);
-  };
+    else {
+      const sorted = data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+      setTasks(sorted);
+    };
 
   const fetchComments = async (task_id) => {
     const data = await getComments(task_id);
