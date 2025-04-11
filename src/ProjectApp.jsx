@@ -26,7 +26,9 @@ export default function ProjectApp() {
   const [editingTask, setEditingTask] = useState(null);
   const [activeTab, setActiveTab] = useState('Accueil');
   const [showMenu, setShowMenu] = useState(false);
-
+  const [projects, setProjects] = useState([]);
+  const [activeProjectId, setActiveProjectId] = useState(null);
+  const [newProjectName, setNewProjectName] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -39,22 +41,63 @@ export default function ProjectApp() {
   }, []);
 
   useEffect(() => {
-    if (session) fetchTasks();
+    if (session) {
+      fetchProjects();
+      fetchTasks();
+    }
   }, [session]);
 
-const fetchTasks = async () => {
+
+  const fetchTasks = async () => {
+    if (!activeProjectId) return;
+  
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('project_id', activeProjectId); // 🔥 filtre sur le projet actif
+  
+    if (error) {
+      console.error(error);
+    } else {
+      const sorted = data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+      setTasks(sorted);
+    }
+  };
+
+
+const fetchProjects = async () => {
   const { data, error } = await supabase
-    .from('tasks')
+    .from('projects')
     .select('*')
     .eq('user_id', session.user.id);
 
-  if (error) {
-    console.error(error);
-  } else {
-    const sorted = data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
-    setTasks(sorted);
+  if (!error) {
+    setProjects(data);
+    if (!activeProjectId && data.length > 0) {
+      setActiveProjectId(data[0].id);
+    }
   }
 };
+
+const handleCreateProject = async () => {
+  if (!newProjectName.trim()) return;
+
+  const { data, error } = await supabase.from('projects').insert([
+    {
+      name: newProjectName,
+      user_id: session.user.id
+    }
+  ]);
+
+  if (!error) {
+    setNewProjectName('');
+    fetchProjects(); // Recharge les projets après ajout
+  } else {
+    alert("Erreur lors de la création du projet.");
+  }
+};
+  
 
 
   const fetchComments = async (task_id) => {
@@ -124,6 +167,30 @@ const renderNavbar = () => (
     <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-2 rounded-xl shadow-sm">
       Project Simple
     </div>
+
+    <div className="flex items-center gap-3 ml-4">
+      <select
+        className="border border-gray-300 rounded-md px-3 py-2"
+        value={activeProjectId || ''}
+        onChange={(e) => setActiveProjectId(e.target.value)}
+      >
+        {projects.map((project) => (
+          <option key={project.id} value={project.id}>
+            {project.name}
+          </option>
+        ))}
+      </select>
+    
+      <button
+        className="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+        data-bs-toggle="modal"
+        data-bs-target="#createProjectModal"
+      >
+        + Nouveau projet
+      </button>
+    </div>
+
+    
     <div className="flex gap-3 items-center">
       <input
         className="border border-gray-300 rounded-md px-3 py-2"
@@ -430,6 +497,31 @@ const renderNavbar = () => (
             </div>
           </div>
         </div>   
+         <div className="modal fade" id="createProjectModal" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Nouveau projet</h5>
+                <button className="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Nom du projet"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button className="btn btn-primary" onClick={handleCreateProject} data-bs-dismiss="modal">
+                  Créer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>     
     </div>
   );
 }
