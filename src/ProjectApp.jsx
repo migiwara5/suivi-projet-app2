@@ -263,7 +263,34 @@ const renderNavbar = () => (
 
 
   return (
-    <div className="p-6 font-sans text-gray-900 bg-white min-h-screen">
+    <div className="flex min-h-screen font-sans text-gray-900 bg-white">
+
+    <div className="w-64 bg-gray-100 p-4 shadow-md">
+      <h3 className="text-lg font-semibold mb-4">Mes classeurs</h3>
+      <ul className="space-y-2">
+        {projects.map((project) => (
+          <li
+            key={project.id}
+            onClick={() => setActiveProjectId(project.id)}
+            className={`cursor-pointer px-3 py-2 rounded-md hover:bg-purple-100 transition ${
+              activeProjectId === project.id ? 'bg-purple-600 text-white' : 'text-gray-800'
+            }`}
+          >
+            {project.name}
+          </li>
+        ))}
+      </ul>
+    
+      <button
+        className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
+        data-bs-toggle="modal"
+        data-bs-target="#createProjectModal"
+      >
+        + Nouveau classeur
+      </button>
+    </div>
+
+    <div className="flex-1 p-6">  
       {renderNavbar()}
 
       <div className="flex gap-4 mb-4">
@@ -295,7 +322,7 @@ const renderNavbar = () => (
           + Nouvelle tâche
         </button>
       </div>
-
+</div>
 
      {activeTab === 'Accueil' ? (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
