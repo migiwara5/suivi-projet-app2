@@ -202,7 +202,15 @@ const renderNavbar = () => (
         ))}
       </div>
 
-      <div className="flex justify-end mb-3">
+      <div className="flex justify-end items-center gap-3 mb-3">
+        <button
+          className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full shadow border border-gray-300"
+          data-bs-toggle="modal"
+          data-bs-target="#filterModal"
+        >
+          🔍 Filtrer
+        </button>
+      
         <button
           className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow"
           data-bs-toggle="modal"
@@ -211,6 +219,7 @@ const renderNavbar = () => (
           + Nouvelle tâche
         </button>
       </div>
+
 
      {activeTab === 'Accueil' ? (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -370,8 +379,58 @@ const renderNavbar = () => (
               </div>
             </div>
           </div>
-        </div>
+        </div>      
       )}
+
+        <div className="modal fade" id="filterModal" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Filtrer les tâches</h5>
+                <button className="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  placeholder="Titre"
+                  className="form-control mb-2"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <input
+                  placeholder="Description"
+                  className="form-control mb-2"
+                  onChange={(e) => {
+                    const value = e.target.value.toLowerCase();
+                    const filtered = tasks.filter(task =>
+                      task.description.toLowerCase().includes(value)
+                    );
+                    setTasks(filtered);
+                  }}
+                />
+                <input
+                  type="date"
+                  className="form-control mb-2"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterDate('');
+                    fetchTasks();
+                  }}
+                >
+                  Réinitialiser
+                </button>
+                <button className="btn btn-primary" data-bs-dismiss="modal">Appliquer</button>
+              </div>
+            </div>
+          </div>
+        </div>   
     </div>
   );
 }
