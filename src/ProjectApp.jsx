@@ -224,7 +224,7 @@ const renderNavbar = () => (
       <h3 className="text-lg font-semibold mb-2">Mes classeurs</h3>
 
       <button
-        className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
+        className="mb-2 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
         data-bs-toggle="modal"
         data-bs-target="#createProjectModal"
       >
