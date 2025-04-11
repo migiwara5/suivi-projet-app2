@@ -188,7 +188,6 @@ const renderNavbar = () => (
   return (
     <div className="p-6 font-sans text-gray-900 bg-white min-h-screen">
       {renderNavbar()}
-      <h5 className="text-sm text-gray-500 mb-3">Connecté en tant que {session.user.email}</h5>
 
       <div className="flex gap-4 mb-4">
         {['Accueil', 'À faire', 'En cours', 'Terminé'].map(tab => (
