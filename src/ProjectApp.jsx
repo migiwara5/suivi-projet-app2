@@ -29,6 +29,9 @@ export default function ProjectApp() {
   const [projects, setProjects] = useState([]);
   const [activeProjectId, setActiveProjectId] = useState(null);
   const [newProjectName, setNewProjectName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('read');
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -195,6 +198,25 @@ const handleCreateProject = async () => {
     return matchesSearch && matchesDate;
   });
 
+  const handleInvite = async () => {
+  if (!inviteEmail.trim() || !activeProjectId) return;
+  const { error } = await supabase.from('project_access').insert([
+    {
+      project_id: activeProjectId,
+      user_email: inviteEmail,
+      role: inviteRole
+    }
+  ]);
+  if (error) {
+    alert("Erreur lors de l'envoi de l'invitation.");
+  } else {
+    alert("Invitation envoyée !");
+    setInviteEmail('');
+    setInviteRole('read');
+  }
+};
+
+
 const renderNavbar = () => (
   <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm bg-white mb-6">
     <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-bold px-4 py-2 rounded-xl shadow-sm">
@@ -253,6 +275,15 @@ const renderNavbar = () => (
       >
         + Nouveau classeur
       </button>
+
+      <button
+  className="mb-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+  data-bs-toggle="modal"
+  data-bs-target="#inviteModal"
+>
+  🤝 Inviter quelqu'un
+</button>
+
       
       <ul className="space-y-2">
         {projects.map((project) => (
@@ -546,7 +577,42 @@ const renderNavbar = () => (
               </div>
             </div>
           </div>
-        </div>     
+        </div>
+    <div className="modal fade" id="inviteModal" tabIndex="-1">
+  <div className="modal-dialog">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h5 className="modal-title">Inviter une personne</h5>
+        <button className="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div className="modal-body">
+        <input
+          type="email"
+          className="form-control mb-2"
+          placeholder="Email de l'invité"
+          value={inviteEmail}
+          onChange={(e) => setInviteEmail(e.target.value)}
+        />
+        <select
+          className="form-control"
+          value={inviteRole}
+          onChange={(e) => setInviteRole(e.target.value)}
+        >
+          <option value="read">Lecture seule</option>
+          <option value="write">Écriture</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div className="modal-footer">
+        <button className="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button className="btn btn-primary" onClick={handleInvite} data-bs-dismiss="modal">
+          Envoyer l'invitation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 }
