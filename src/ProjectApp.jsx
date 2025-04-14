@@ -74,15 +74,38 @@ export default function ProjectApp() {
 
 const fetchProjects = async () => {
   const { data, error } = await supabase
+    .from('project_access')
+    .select('role, project_id, projects(*)') // grâce à la foreign key
+    .eq('user_email', session.user.email);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const sharedProjects = data.map((entry) => entry.projects);
+
+  const { data: ownedData, error: ownedError } = await supabase
     .from('projects')
     .select('*')
     .eq('user_id', session.user.id);
 
-  if (!error) {
-    setProjects(data);
-    if (!activeProjectId && data.length > 0) {
-      setActiveProjectId(data[0].id);
-    }
+  if (ownedError) {
+    console.error(ownedError);
+    return;
+  }
+
+  const combined = [...ownedData, ...sharedProjects];
+
+  // Supprimer les doublons (si jamais le propriétaire est aussi dans `project_access`)
+  const uniqueProjects = Array.from(
+    new Map(combined.map((proj) => [proj.id, proj])).values()
+  );
+
+  setProjects(uniqueProjects);
+
+  if (!activeProjectId && uniqueProjects.length > 0) {
+    setActiveProjectId(uniqueProjects[0].id);
   }
 };
 
